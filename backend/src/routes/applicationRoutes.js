@@ -1,13 +1,10 @@
 const express = require("express");
 
-const authenticate =
-    require("../middleware/authMiddleware");
-
-const requireRole =
-    require("../middleware/roleMiddleware");
-
-const controller =
-    require("../controllers/applicationController");
+const authenticate = require("../middleware/authMiddleware");
+const requireRole = require("../middleware/roleMiddleware");
+const controller = require("../controllers/applicationController");
+const canAccessApplication = require("../middleware/applicationAccessMiddleware");
+const { getHistory } = require("../controllers/historyController");
 
 const router = express.Router();
 
@@ -29,7 +26,16 @@ router.get(
     "/applications/:id",
     authenticate,
     requireRole("recruiter", "interviewer"),
+    canAccessApplication,
     controller.getById
+);
+
+router.get(
+    "/applications/:id/history",
+    authenticate,
+    requireRole("recruiter", "interviewer"),
+    canAccessApplication,
+    getHistory
 );
 
 router.put(
