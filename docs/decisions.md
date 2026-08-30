@@ -64,3 +64,54 @@ Resetting a rejected application to `Applied` during reinstatement.
 
 The requirements explicitly state that reinstatement must return the
 application to the exact stage from which it was rejected.
+
+## Many-to-many interviewer panel
+
+### Chosen
+
+Use an `application_interviewers` junction table.
+
+### Rejected
+
+Store one interviewer ID directly on the application.
+
+### Why
+
+An application can have any number of interviewers and an interviewer can
+participate in applications across multiple job openings. This is a
+many-to-many relationship, so a junction table is the normalized design.
+
+## Feedback stored as immutable history events
+
+### Chosen
+
+Store interviewer feedback as `FEEDBACK_ADDED` events in
+`application_history`.
+
+### Rejected
+
+Store feedback in a mutable feedback column on the application or allow
+feedback records to be edited/deleted.
+
+### Why
+
+The requirements state that feedback is part of the application timeline and
+that timeline records cannot be edited or deleted. Storing feedback as
+append-only history events preserves the audit trail.
+
+## Server-side application search
+
+### Chosen
+
+Search, filtering, sorting and pagination are performed by the Node API and
+MySQL rather than loading all applications into Angular.
+
+### Rejected
+
+Loading all applications into the browser and filtering them with JavaScript.
+
+### Why
+
+The requirements explicitly require server-side processing. It also reduces
+browser memory usage and network transfer and provides a path to scaling the
+application.

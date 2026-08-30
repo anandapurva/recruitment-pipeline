@@ -32,3 +32,28 @@ Application:
 - Only recruiters may create/edit/archive/restore openings.
 - Archived openings are excluded from default listing.
 - Only archived openings can be restored.
+
+## Scaling considerations
+
+Candidate name and email currently use substring matching with LIKE '%term%'.
+At significantly larger data volumes, this would become a search bottleneck
+because conventional indexes cannot efficiently optimize a leading wildcard.
+
+A future implementation could use MySQL full-text indexes, a dedicated search
+engine, or another search-oriented data store depending on scale and search
+requirements.
+
+## Indexes
+
+Applications have indexes on:
+
+- job_opening_id
+- stage
+- source
+- applied_at
+- updated_at
+
+application_interviewers has an index on interviewer_id.
+
+These indexes support the most common filtering, sorting and authorization
+queries.

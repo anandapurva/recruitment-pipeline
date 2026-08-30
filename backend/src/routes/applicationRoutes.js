@@ -5,6 +5,7 @@ const requireRole = require("../middleware/roleMiddleware");
 const controller = require("../controllers/applicationController");
 const canAccessApplication = require("../middleware/applicationAccessMiddleware");
 const { getHistory } = require("../controllers/historyController");
+const { search } = require("../controllers/applicationSearchController");
 
 const router = express.Router();
 
@@ -20,6 +21,13 @@ router.get(
     authenticate,
     requireRole("recruiter"),
     controller.getByJob
+);
+
+router.get(
+    "/applications",
+    authenticate,
+    requireRole("recruiter", "interviewer"),
+    search
 );
 
 router.get(
