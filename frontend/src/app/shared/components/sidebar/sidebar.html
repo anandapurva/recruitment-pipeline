@@ -1,0 +1,51 @@
+<aside class="sidebar">
+
+  <div class="brand">
+    <h2>Recruitment</h2>
+    <span>Pipeline</span>
+  </div>
+
+  <nav>
+
+    @for (item of items; track item.route) {
+
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{
+          exact: true
+        }"
+      >
+
+        <span class="material-symbols-outlined">
+          {{ item.icon }}
+        </span>
+
+        <span>
+          {{ item.label }}
+        </span>
+
+      </a>
+
+    }
+
+  </nav>
+
+  <div class="sidebar-footer">
+
+    <button
+      type="button"
+      (click)="logout()"
+    >
+
+      <span class="material-symbols-outlined">
+        logout
+      </span>
+
+      Logout
+
+    </button>
+
+  </div>
+
+</aside>

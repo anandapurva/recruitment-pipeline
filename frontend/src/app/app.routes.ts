@@ -1,14 +1,27 @@
 import { Routes } from '@angular/router';
-import { Login } from './features/auth/login/login'; 
-import { Unauthorized } from './features/auth/unauthorized/unauthorized'; 
-import { Dashboard } from './features/dashboard/dashboard'; 
-import { Applications } from './features/applications/applications'; 
-import { Alerts } from './features/alerts/alerts';
-import { authGuard } from './core/guards/auth-guard';
 
+import { authGuard } from './core/guards/auth-guard';
 import { roleGuard } from './core/guards/role-guard';
 
+// Auth
+import { Login } from './features/auth/login/login';
+import { Unauthorized } from './features/auth/unauthorized/unauthorized';
+
+// Layouts
+import { RecruiterLayout } from './layouts/recruiter-layout/recruiter-layout';
+import { InterviewerLayout } from './layouts/interviewer-layout/interviewer-layout';
+
+// Recruiter features
+import { Dashboard } from './features/dashboard/dashboard';
+import { Jobs } from './features/jobs/jobs';
+import { Applications } from './features/applications/applications';
+import { Alerts } from './features/alerts/alerts';
+
 export const routes: Routes = [
+
+  // =====================
+  // AUTH
+  // =====================
 
   {
     path: '',
@@ -16,30 +29,23 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
-
-  { path: 'login', 
-    component: Login 
-  },
-
-  { path: 'unauthorized', 
-    component: Unauthorized 
-  },
-
-
   {
-    path: 'recruiter/dashboard',
-    canActivate: [
-      authGuard,
-      roleGuard
-    ],
-    data: {
-      role: 'recruiter'
-    },
-    component: Dashboard
+    path: 'login',
+    component: Login
   },
 
   {
-    path: 'recruiter/applications',
+    path: 'unauthorized',
+    component: Unauthorized
+  },
+
+
+  // =====================
+  // RECRUITER
+  // =====================
+
+  {
+    path: 'recruiter',
 
     canActivate: [
       authGuard,
@@ -50,28 +56,46 @@ export const routes: Routes = [
       role: 'recruiter'
     },
 
-    component: Applications
+    component: RecruiterLayout,
 
+    children: [
+
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+
+      {
+        path: 'dashboard',
+        component: Dashboard
+      },
+
+      {
+        path: 'jobs',
+        component: Jobs
+      },
+
+      {
+        path: 'applications',
+        component: Applications
+      },
+
+      {
+        path: 'alerts',
+        component: Alerts
+      }
+
+    ]
   },
 
-  {
-    path: 'recruiter/alerts',
 
-    canActivate: [
-      authGuard,
-      roleGuard
-    ],
-
-    data: {
-      role: 'recruiter'
-    },
-
-    component: Alerts
-      
-  },
+  // =====================
+  // INTERVIEWER
+  // =====================
 
   {
-    path: 'interviewer/applications',
+    path: 'interviewer',
 
     canActivate: [
       authGuard,
@@ -82,12 +106,33 @@ export const routes: Routes = [
       role: 'interviewer'
     },
 
-    component: Applications
-      
+    component: InterviewerLayout,
+
+    children: [
+
+      {
+        path: '',
+        redirectTo: 'applications',
+        pathMatch: 'full'
+      },
+
+      {
+        path: 'applications',
+        component: Applications
+      }
+
+    ]
   },
+
+
+  // =====================
+  // WILDCARD
+  // =====================
 
   {
     path: '**',
     redirectTo: 'login'
   }
+
 ];
+
