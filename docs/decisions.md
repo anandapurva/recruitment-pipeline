@@ -148,3 +148,39 @@ application itself is still active.
 ### Why
 
 Archiving an opening must hide the opening without destroying its applications.
+
+## Global dashboard access
+
+### Chosen
+
+The global dashboard is restricted to recruiters.
+
+### Rejected
+
+Allowing interviewers to see the same dashboard as recruiters.
+
+### Why
+
+The dashboard contains aggregate information across job openings. The
+requirements restrict interviewers to applications assigned to them and
+prevent them from seeing other openings' pipelines. A global dashboard would
+leak information about candidates and hiring activity outside their assigned
+applications.
+
+## Interview scheduling
+
+### Chosen
+
+Use a separate interviews table with a one-to-many relationship from
+applications.
+
+### Rejected
+
+Store a single interview date directly on applications.
+
+### Why
+
+An application can have multiple interview rounds, and the dashboard needs to
+count scheduled interviews. A separate table models this naturally and
+allows future interview-related fields without modifying the application
+record.

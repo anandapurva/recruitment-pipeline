@@ -57,3 +57,19 @@ application_interviewers has an index on interviewer_id.
 
 These indexes support the most common filtering, sorting and authorization
 queries.
+
+## interviews
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| application_id | INT | FK, NOT NULL |
+| scheduled_at | DATETIME | NOT NULL |
+| duration_minutes | INT | DEFAULT 60 |
+| location | VARCHAR(255) | nullable |
+| notes | TEXT | nullable |
+| created_by | INT | FK, NOT NULL |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP |
+
+An application has a one-to-many relationship with interviews.
+A user can create many interviews.

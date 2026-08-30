@@ -9,6 +9,8 @@ const requireRole = require("./middleware/roleMiddleware");
 const jobRoutes = require("./routes/jobRoutes");
 const applicationRoutes = require("./routes/applicationRoutes");
 const interviewRoutes = require("./routes/interviewRoutes");
+const scheduledInterviewRoutes = require("./routes/scheduledInterviewRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", applicationRoutes);
 app.use("/api", interviewRoutes);
+app.use("/api", scheduledInterviewRoutes);
+app.use("/api", dashboardRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({
