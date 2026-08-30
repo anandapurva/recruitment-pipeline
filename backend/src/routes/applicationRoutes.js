@@ -6,6 +6,8 @@ const controller = require("../controllers/applicationController");
 const canAccessApplication = require("../middleware/applicationAccessMiddleware");
 const { getHistory } = require("../controllers/historyController");
 const { search } = require("../controllers/applicationSearchController");
+const bulkController = require("../controllers/bulkApplicationController");
+const { exportPipeline } = require("../controllers/exportController");
 
 const router = express.Router();
 
@@ -79,6 +81,27 @@ router.patch(
     authenticate,
     requireRole("recruiter"),
     controller.reinstate
+);
+
+router.post(
+    "/applications/bulk/advance",
+    authenticate,
+    requireRole("recruiter"),
+    bulkController.advance
+);
+
+router.post(
+    "/applications/bulk/reject",
+    authenticate,
+    requireRole("recruiter"),
+    bulkController.reject
+);
+
+router.get(
+    "/applications/export",
+    authenticate,
+    requireRole("recruiter"),
+    exportPipeline
 );
 
 module.exports = router;

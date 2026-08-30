@@ -115,3 +115,36 @@ Loading all applications into the browser and filtering them with JavaScript.
 The requirements explicitly require server-side processing. It also reduces
 browser memory usage and network transfer and provides a path to scaling the
 application.
+
+## Bulk operations are partially successful
+
+### Chosen
+
+Each application in a bulk request is processed independently. The response
+contains separate succeeded and failed arrays, with the reason for every
+failure.
+
+### Rejected
+
+Wrapping the entire batch in one transaction and rolling back everything when
+one application is invalid.
+
+### Why
+
+The requirements explicitly require per-candidate success/failure reporting.
+One invalid candidate should not prevent valid candidates from being processed.
+
+## Pipeline CSV definition
+
+### Chosen
+
+The CSV contains active applications in Applied, Screening, Interview and
+Offer stages. Hired and Rejected applications are excluded because they are
+terminal and no longer part of the open pipeline.
+
+Applications belonging to archived job openings are retained if the
+application itself is still active.
+
+### Why
+
+Archiving an opening must hide the opening without destroying its applications.
