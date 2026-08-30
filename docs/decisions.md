@@ -184,3 +184,40 @@ An application can have multiple interview rounds, and the dashboard needs to
 count scheduled interviews. A separate table models this naturally and
 allows future interview-related fields without modifying the application
 record.
+
+## Stalled alerts are generated lazily
+
+### Chosen
+
+Stalled alerts are created when the recruiter requests the stalled-alert list
+or count. The application determines whether a stage has exceeded ten days
+using stage_started_at.
+
+### Rejected
+
+A continuously running background worker for alert creation.
+
+### Why
+
+The assignment can determine staleness directly from stored timestamps, so a
+background process is unnecessary for correctness. Lazy generation also keeps
+the free-tier deployment simpler and avoids maintaining an additional worker.
+A database unique constraint prevents duplicate alerts.
+
+## Alert dismissal is tied to a stage instance
+
+### Chosen
+
+A stalled alert stores application_id, stage and stage_started_at. Dismissing
+an alert only dismisses that particular instance of the application being in
+that stage.
+
+### Rejected
+
+A permanent dismissed flag on the application.
+
+### Why
+
+An application must receive a new alert if it advances to another stage and
+later becomes stalled again. Tying dismissal to stage_started_at naturally
+resets the alert state whenever the candidate enters a new stage.

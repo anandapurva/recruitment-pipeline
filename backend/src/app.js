@@ -11,6 +11,7 @@ const applicationRoutes = require("./routes/applicationRoutes");
 const interviewRoutes = require("./routes/interviewRoutes");
 const scheduledInterviewRoutes = require("./routes/scheduledInterviewRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const stalledAlertRoutes = require("./routes/stalledAlertRoutes");
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api", applicationRoutes);
 app.use("/api", interviewRoutes);
 app.use("/api", scheduledInterviewRoutes);
 app.use("/api", dashboardRoutes);
+app.use("/api", stalledAlertRoutes);
 
 app.get("/api/health", (req, res) => {
     res.json({

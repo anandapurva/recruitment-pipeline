@@ -73,3 +73,22 @@ queries.
 
 An application has a one-to-many relationship with interviews.
 A user can create many interviews.
+
+## stalled_alerts
+
+| Column | Type | Constraints |
+|---|---|---|
+| id | INT | PK, AUTO_INCREMENT |
+| application_id | INT | FK, NOT NULL |
+| stage | VARCHAR(50) | NOT NULL |
+| stage_started_at | DATETIME | NOT NULL |
+| dismissed_at | DATETIME | nullable |
+| dismissed_by | INT | FK, nullable |
+| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP |
+
+An application can have many stalled alert records over its lifetime.
+Each alert represents one stage instance.
+
+A unique constraint on
+(application_id, stage, stage_started_at) prevents duplicate alerts for
+the same stage instance.

@@ -38,3 +38,22 @@ Completed:
 - Archive
 - Restore
 - Recruiter-only mutations
+
+## Session 10 — Stalled alerts
+
+Estimated:
+3–4 hours
+
+Actual:
+[fill this in after completing the session]
+
+Work:
+- Added stage_started_at
+- Added stalled_alerts table
+- Added stalled application detection
+- Added alert dismissal
+- Added alert count
+- Added stage-instance based dismissal reset
+- Added database uniqueness constraint
+- Tested alert regeneration after stage change
+

@@ -244,7 +244,8 @@ const moveToStage = async (
         await connection.query(
             `UPDATE applications
              SET stage = ?,
-                 stage_changed_at = CURRENT_TIMESTAMP
+                stage_started_at = NOW(),
+                updated_at = NOW()
              WHERE id = ?`,
             [targetStage, applicationId]
         );
