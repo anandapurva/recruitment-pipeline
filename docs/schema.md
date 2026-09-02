@@ -93,3 +93,32 @@ A unique constraint on
 (application_id, stage, stage_started_at) prevents duplicate alerts for
 the same stage instance.
 
+## applications
+
+| Column | Type | Nullable | Constraints |
+|---|---|---|---|
+| id | INT | No | Primary key, auto increment |
+| job_id | INT | No | Foreign key to job_openings.id |
+| candidate_name | VARCHAR(150) | No | Required |
+| candidate_email | VARCHAR(255) | No | Required |
+| source | VARCHAR(100) | Yes | Optional |
+| notes | TEXT | Yes | Optional |
+| stage | ENUM | No | Pipeline stage |
+| created_at | TIMESTAMP | No | Creation timestamp |
+| updated_at | TIMESTAMP | No | Last update timestamp |
+
+### Relationship
+
+One job opening can have many applications.
+
+Each application belongs to exactly one job opening.
+
+Therefore:
+
+job_openings 1 ─────── N applications
+
+The relationship is enforced using the foreign key
+`applications.job_id -> job_openings.id`.
+
+`ON DELETE RESTRICT` prevents a job opening from being deleted
+while applications still reference it.

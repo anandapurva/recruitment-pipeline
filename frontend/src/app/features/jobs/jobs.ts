@@ -1,13 +1,7 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectorRef
-} from '@angular/core';
-
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
 import { JobService } from '../../core/services/job';
 
 import {
@@ -54,6 +48,7 @@ export class Jobs implements OnInit {
 
   constructor(
     private jobService: JobService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -66,11 +61,7 @@ export class Jobs implements OnInit {
 
 
   loadJobs(): void {
-
-    console.log(
-      'Loading jobs. Archived:',
-      this.showArchived
-    );
+    console.log('Loading jobs. Archived:', this.showArchived);
 
     this.loading = true;
 
@@ -158,9 +149,7 @@ export class Jobs implements OnInit {
   }
 
 
-  openEditForm(
-    job: JobOpening
-  ): void {
+  openEditForm(job: JobOpening): void {
 
     if (
       job.status === 'archived'
@@ -212,12 +201,7 @@ export class Jobs implements OnInit {
 
 
   saveJob(): void {
-
-    console.log(
-      'FORM DATA:',
-      this.form
-    );
-
+    console.log( 'FORM DATA:', this.form );
 
     if (
       !this.form.title.trim() ||
@@ -362,9 +346,7 @@ export class Jobs implements OnInit {
   }
 
 
-  archiveJob(
-    job: JobOpening
-  ): void {
+  archiveJob(job: JobOpening): void {
 
     if (
       job.status === 'archived'
@@ -432,9 +414,7 @@ export class Jobs implements OnInit {
   }
 
 
-  restoreJob(
-    job: JobOpening
-  ): void {
+  restoreJob(job: JobOpening): void {
 
     if (
       job.status !== 'archived'
@@ -456,12 +436,7 @@ export class Jobs implements OnInit {
 
         next: (response) => {
 
-          console.log(
-            'RESTORE RESPONSE:',
-            response
-          );
-
-
+          console.log('RESTORE RESPONSE:', response);
           this.loadJobs();
 
         },
@@ -469,10 +444,7 @@ export class Jobs implements OnInit {
 
         error: (error) => {
 
-          console.error(
-            'RESTORE ERROR:',
-            error
-          );
+          console.error('RESTORE ERROR:', error);
 
           this.errorMessage =
             error?.error?.message ||
@@ -487,5 +459,14 @@ export class Jobs implements OnInit {
       });
 
   }
+
+ openApplications(job: JobOpening): void {
+  this.router.navigate([
+    '/recruiter',
+    'jobs',
+    job.id,
+    'applications'
+  ]);
+}
 
 }

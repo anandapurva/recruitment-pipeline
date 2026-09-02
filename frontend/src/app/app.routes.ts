@@ -17,6 +17,7 @@ import { Jobs } from './features/jobs/jobs';
 import { Applications } from './features/applications/applications';
 import { Alerts } from './features/alerts/alerts';
 
+
 export const routes: Routes = [
 
   // =====================
@@ -62,37 +63,38 @@ export const routes: Routes = [
 
     children: [
 
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
+  },
 
+  {
+    path: 'dashboard',
+    component: Dashboard
+  },
 
-      {
-        path: 'dashboard',
-        component: Dashboard
-      },
+  {
+    path: 'jobs',
+    component: Jobs
+  },
 
+  {
+    path: 'jobs/:jobId/applications',
+    component: Applications
+  },
 
-      {
-        path: 'jobs',
-        component: Jobs
-      },
+  {
+    path: 'applications',
+    component: Applications
+  },
 
+  {
+    path: 'alerts',
+    component: Alerts
+  }
 
-      {
-        path: 'applications',
-        component: Applications
-      },
-
-
-      {
-        path: 'alerts',
-        component: Alerts
-      }
-
-    ]
+]
 
   },
 
@@ -141,6 +143,7 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'login'
-  }
+  },
+
 
 ];

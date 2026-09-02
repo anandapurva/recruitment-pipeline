@@ -43,6 +43,29 @@ const getByJob = async (req, res) => {
 
         const { jobId } = req.params;
 
+        // Get job details
+        const [jobs] = await db.query(
+            `SELECT
+                id,
+                title,
+                department,
+                description,
+                status,
+                created_at,
+                updated_at
+             FROM job_openings
+             WHERE id = ?`,
+            [jobId]
+        );
+
+        if (jobs.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Job opening not found"
+            });
+        }
+
+        // Get applications for this job
         const [applications] = await db.query(
             `SELECT
                 id,
@@ -63,6 +86,7 @@ const getByJob = async (req, res) => {
 
         res.json({
             success: true,
+            job: jobs[0],
             applications
         });
 

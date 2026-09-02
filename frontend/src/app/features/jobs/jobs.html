@@ -126,41 +126,44 @@
 
 
       <!-- Job Actions -->
+
       <div class="job-actions">
 
-        <!-- Edit + Archive -->
-        <div *ngIf="job.status !== 'archived'">
-
-          <button
-            type="button"
-            (click)="openEditForm(job)"
-          >
-            Edit
-          </button>
-
-          <button
-            type="button"
-            (click)="archiveJob(job)"
-          >
-            Archive
-          </button>
-
-        </div>
+  <button
+    type="button"
+    (click)="openApplications(job)"
+  >
+    Applications
+  </button>
 
 
-        <!-- Restore -->
-        <div *ngIf="job.status === 'archived'">
+  <button
+    *ngIf="job.status !== 'archived'"
+    type="button"
+    (click)="openEditForm(job)"
+  >
+    Edit
+  </button>
 
-          <button
-            type="button"
-            (click)="restoreJob(job)"
-          >
-            Restore
-          </button>
 
-        </div>
+  <button
+    *ngIf="job.status !== 'archived'"
+    type="button"
+    (click)="archiveJob(job)"
+  >
+    Archive
+  </button>
 
-      </div>
+
+  <button
+    *ngIf="job.status === 'archived'"
+    type="button"
+    (click)="restoreJob(job)"
+  >
+    Restore
+  </button>
+
+</div>
 
     </div>
 

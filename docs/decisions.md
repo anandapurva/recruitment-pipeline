@@ -221,3 +221,48 @@ A permanent dismissed flag on the application.
 An application must receive a new alert if it advances to another stage and
 later becomes stalled again. Tying dismissal to stage_started_at naturally
 resets the alert state whenever the candidate enters a new stage.
+
+## Decision: Use status for archiving
+
+### Chosen
+Use the existing `job_openings.status` ENUM with:
+- open
+- closed
+- archived
+
+### Rejected
+Adding a separate `is_archived` BOOLEAN column.
+
+### Why
+The existing database schema already models archived as a valid
+state, so adding another column would duplicate state information.
+Using one status field keeps the current schema simpler.
+
+### Consequence
+Archive and restore operations must explicitly change the status.
+Restoring an archived opening returns it to `closed` rather than
+automatically reopening the position.
+
+## Decision: Applications belong to a single job opening
+
+### Chosen
+
+Each application contains a `job_id` foreign key referencing
+`job_openings.id`.
+
+### Rejected
+
+Allowing one application record to represent applications to
+multiple jobs.
+
+### Why
+
+The specification states that every application belongs to
+exactly one job opening. A foreign key directly represents this
+relationship and allows the database to enforce it.
+
+### Consequence
+
+A candidate who applies to two different positions will have
+two application records. This preserves the job-specific
+pipeline and history.
