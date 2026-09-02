@@ -469,4 +469,15 @@ export class Jobs implements OnInit {
   ]);
 }
 
+openPipeline(job: JobOpening): void {
+
+  this.router.navigate([
+    '/recruiter',
+    'jobs',
+    job.id,
+    'pipeline'
+  ]);
+
+}
+
 }

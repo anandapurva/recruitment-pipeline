@@ -16,7 +16,7 @@ import { Dashboard } from './features/dashboard/dashboard';
 import { Jobs } from './features/jobs/jobs';
 import { Applications } from './features/applications/applications';
 import { Alerts } from './features/alerts/alerts';
-
+import { Pipeline } from './features/pipeline/pipeline';
 
 export const routes: Routes = [
 
@@ -83,6 +83,11 @@ export const routes: Routes = [
     path: 'jobs/:jobId/applications',
     component: Applications
   },
+   
+  {
+  path: 'jobs/:jobId/pipeline',
+  component: Pipeline
+  },
 
   {
     path: 'applications',
@@ -93,6 +98,7 @@ export const routes: Routes = [
     path: 'alerts',
     component: Alerts
   }
+ 
 
 ]
 

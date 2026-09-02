@@ -136,6 +136,13 @@
     Applications
   </button>
 
+  <button
+  type="button"
+  (click)="openPipeline(job)"
+>
+  Pipeline
+</button>
+
 
   <button
     *ngIf="job.status !== 'archived'"

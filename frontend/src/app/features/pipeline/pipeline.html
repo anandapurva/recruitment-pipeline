@@ -1,0 +1,487 @@
+<div class="pipeline-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="goBack()"
+      >
+        ← Back to Jobs
+      </button>
+
+      <h1>
+        {{ jobTitle }}
+      </h1>
+
+      <p>
+        {{ jobDepartment }}
+      </p>
+
+    </div>
+
+    <button
+      type="button"
+      class="secondary-button"
+      (click)="openApplications()"
+    >
+      View Applications
+    </button>
+
+  </div>
+
+
+  <div class="job-info">
+
+    <span>
+      Status:
+      <strong>
+        {{ jobStatus }}
+      </strong>
+    </span>
+
+    <span>
+      Candidates:
+      <strong>
+        {{ applications.length }}
+      </strong>
+    </span>
+
+  </div>
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <div
+    *ngIf="successMessage"
+    class="success-message"
+  >
+    {{ successMessage }}
+  </div>
+
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading pipeline...
+  </div>
+
+
+  <div
+    *ngIf="!loading"
+    class="pipeline"
+  >
+
+    <!-- Applied -->
+
+    <div class="pipeline-column">
+
+      <div class="column-header">
+
+        <h2>Applied</h2>
+
+        <span>
+          {{ getApplicationsByStage('Applied').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Applied')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+          <div class="card-actions">
+
+            <button
+              type="button"
+              (click)="advance(application)"
+              [disabled]="processingId === application.id"
+            >
+              Move to Screening
+            </button>
+
+            <button
+              type="button"
+              class="reject-button"
+              (click)="reject(application)"
+              [disabled]="processingId === application.id"
+            >
+              Reject
+            </button>
+
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Applied').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Screening -->
+
+    <div class="pipeline-column">
+
+      <div class="column-header">
+
+        <h2>Screening</h2>
+
+        <span>
+          {{ getApplicationsByStage('Screening').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Screening')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+          <div class="card-actions">
+
+            <button
+              type="button"
+              (click)="advance(application)"
+              [disabled]="processingId === application.id"
+            >
+              Move to Interview
+            </button>
+
+            <button
+              type="button"
+              class="reject-button"
+              (click)="reject(application)"
+              [disabled]="processingId === application.id"
+            >
+              Reject
+            </button>
+
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Screening').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Interview -->
+
+    <div class="pipeline-column">
+
+      <div class="column-header">
+
+        <h2>Interview</h2>
+
+        <span>
+          {{ getApplicationsByStage('Interview').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Interview')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+          <div class="card-actions">
+
+            <button
+              type="button"
+              (click)="advance(application)"
+              [disabled]="processingId === application.id"
+            >
+              Move to Offer
+            </button>
+
+            <button
+              type="button"
+              class="reject-button"
+              (click)="reject(application)"
+              [disabled]="processingId === application.id"
+            >
+              Reject
+            </button>
+
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Interview').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Offer -->
+
+    <div class="pipeline-column">
+
+      <div class="column-header">
+
+        <h2>Offer</h2>
+
+        <span>
+          {{ getApplicationsByStage('Offer').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Offer')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+          <div class="card-actions">
+
+            <button
+              type="button"
+              (click)="advance(application)"
+              [disabled]="processingId === application.id"
+            >
+              Move to Hired
+            </button>
+
+            <button
+              type="button"
+              class="reject-button"
+              (click)="reject(application)"
+              [disabled]="processingId === application.id"
+            >
+              Reject
+            </button>
+
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Offer').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Hired -->
+
+    <div class="pipeline-column">
+
+      <div class="column-header">
+
+        <h2>Hired</h2>
+
+        <span>
+          {{ getApplicationsByStage('Hired').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Hired')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Hired').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Rejected -->
+
+    <div class="pipeline-column rejected-column">
+
+      <div class="column-header">
+
+        <h2>Rejected</h2>
+
+        <span>
+          {{ getApplicationsByStage('Rejected').length }}
+        </span>
+
+      </div>
+
+      <div class="candidate-list">
+
+        <div
+          *ngFor="
+            let application of getApplicationsByStage('Rejected')
+          "
+          class="candidate-card"
+        >
+
+          <h3>
+            {{ application.candidate_name }}
+          </h3>
+
+          <p>
+            {{ application.candidate_email }}
+          </p>
+
+          <span class="source">
+            {{ application.source || 'No source' }}
+          </span>
+
+          <div class="card-actions">
+
+            <button
+              type="button"
+              (click)="reinstate(application)"
+              [disabled]="processingId === application.id"
+            >
+              Reinstate
+            </button>
+
+          </div>
+
+        </div>
+
+        <div
+          *ngIf="
+            getApplicationsByStage('Rejected').length === 0
+          "
+          class="empty-column"
+        >
+          No candidates
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

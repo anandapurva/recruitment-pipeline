@@ -151,7 +151,9 @@ const advanceApplication = async (
         await connection.query(
             `UPDATE applications
              SET stage = ?,
-                 stage_changed_at = CURRENT_TIMESTAMP
+                stage_changed_at = CURRENT_TIMESTAMP,
+                stage_started_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
              WHERE id = ?`,
             [
                 nextStage,
@@ -323,7 +325,9 @@ const rejectApplication = async (
             `UPDATE applications
              SET stage = 'Rejected',
                  rejected_from_stage = ?,
-                 stage_changed_at = CURRENT_TIMESTAMP
+                 stage_changed_at = CURRENT_TIMESTAMP,
+                 stage_started_at = CURRENT_TIMESTAMP,
+                 updated_at = CURRENT_TIMESTAMP
              WHERE id = ?`,
             [
                 previousStage,
@@ -410,7 +414,9 @@ const reinstateApplication = async (
             `UPDATE applications
              SET stage = ?,
                  rejected_from_stage = NULL,
-                 stage_changed_at = CURRENT_TIMESTAMP
+                 stage_changed_at = CURRENT_TIMESTAMP,
+                 stage_started_at = CURRENT_TIMESTAMP,
+                 updated_at = CURRENT_TIMESTAMP
              WHERE id = ?`,
             [
                 restoredStage,

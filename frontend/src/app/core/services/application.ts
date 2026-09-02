@@ -61,4 +61,37 @@ export class ApplicationService {
 
   }
 
+  advanceApplication(
+  id: number
+): Observable<any> {
+
+  return this.api.patch<any>(
+    `/applications/${id}/advance`,
+    {}
+  );
+
+}
+
+rejectApplication(
+  id: number
+): Observable<any> {
+
+  return this.api.patch<any>(
+    `/applications/${id}/reject`,
+    {}
+  );
+
+}
+
+reinstateApplication(
+  id: number
+): Observable<any> {
+
+  return this.api.patch<any>(
+    `/applications/${id}/reinstate`,
+    {}
+  );
+
+}
+
 }
