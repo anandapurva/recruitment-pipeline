@@ -57,3 +57,29 @@ Work:
 - Added database uniqueness constraint
 - Tested alert regeneration after stage change
 
+## Session: Job Openings CRUD
+
+### Planned
+- Create Angular job service
+- Build recruiter job list
+- Create job opening
+- Edit job opening
+- Archive/restore opening
+- Verify recruiter authorization
+
+### Why this order
+Job openings are the parent entity for applications, so the
+job-opening workflow needs to exist before application management.
+
+### Actual
+- Angular service created
+- Job list implemented
+- Create/edit/archive/restore implemented
+- Backend authorization verified
+
+### Cut
+- Advanced filtering
+- Archived/active tabs
+- UI polish
+
+These will be added later if needed.

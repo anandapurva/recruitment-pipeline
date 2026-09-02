@@ -8,11 +8,13 @@
       Sign in to continue
     </p>
 
+
     <form
       [formGroup]="loginForm"
       (ngSubmit)="submit()"
     >
 
+      <!-- Email -->
       <label>
         Email
       </label>
@@ -23,15 +25,17 @@
         placeholder="you@example.com"
       />
 
-      @if (
-        loginForm.controls.email.touched &&
-        loginForm.controls.email.invalid
-      ) {
-        <small>
-          Enter a valid email address.
-        </small>
-      }
+      <small
+        *ngIf="
+          loginForm.controls.email.touched &&
+          loginForm.controls.email.invalid
+        "
+      >
+        Enter a valid email address.
+      </small>
 
+
+      <!-- Password -->
       <label>
         Password
       </label>
@@ -42,14 +46,17 @@
         placeholder="Password"
       />
 
-      @if (errorMessage) {
 
-        <p class="error">
-          {{ errorMessage }}
-        </p>
+      <!-- Error Message -->
+      <p
+        *ngIf="errorMessage"
+        class="error"
+      >
+        {{ errorMessage }}
+      </p>
 
-      }
 
+      <!-- Login Button -->
       <button
         type="submit"
         [disabled]="loading"

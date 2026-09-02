@@ -47,7 +47,7 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
     try {
-        const { includeArchived } = req.query;
+        const { archived } = req.query;
 
         let query = `
             SELECT
@@ -63,10 +63,18 @@ const getJobs = async (req, res) => {
 
         const params = [];
 
-        if (includeArchived !== "true") {
+        if (archived === "true") {
+
+            query += `
+                WHERE status = 'archived'
+            `;
+
+        } else {
+
             query += `
                 WHERE status != 'archived'
             `;
+
         }
 
         query += `
@@ -81,6 +89,7 @@ const getJobs = async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({

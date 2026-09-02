@@ -1,35 +1,37 @@
 <aside class="sidebar">
 
   <div class="brand">
+
     <h2>Recruitment</h2>
+
     <span>Pipeline</span>
+
   </div>
+
 
   <nav>
 
-    @for (item of items; track item.route) {
+    <a
+      *ngFor="let item of items"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{
+        exact: true
+      }"
+    >
 
-      <a
-        [routerLink]="item.route"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{
-          exact: true
-        }"
-      >
+      <span class="material-symbols-outlined">
+        {{ item.icon }}
+      </span>
 
-        <span class="material-symbols-outlined">
-          {{ item.icon }}
-        </span>
+      <span>
+        {{ item.label }}
+      </span>
 
-        <span>
-          {{ item.label }}
-        </span>
-
-      </a>
-
-    }
+    </a>
 
   </nav>
+
 
   <div class="sidebar-footer">
 

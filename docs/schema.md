@@ -92,3 +92,4 @@ Each alert represents one stage instance.
 A unique constraint on
 (application_id, stage, stage_started_at) prevents duplicate alerts for
 the same stage instance.
+

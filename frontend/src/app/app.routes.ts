@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './core/guards/auth-guard';
-import { roleGuard } from './core/guards/role-guard';
+import { AuthGuard } from './core/guards/auth-guard';
+import { RoleGuard } from './core/guards/role-guard';
 
 // Auth
 import { Login } from './features/auth/login/login';
@@ -29,10 +29,12 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
 
+
   {
     path: 'login',
     component: Login
   },
+
 
   {
     path: 'unauthorized',
@@ -48,8 +50,8 @@ export const routes: Routes = [
     path: 'recruiter',
 
     canActivate: [
-      authGuard,
-      roleGuard
+      AuthGuard,
+      RoleGuard
     ],
 
     data: {
@@ -66,20 +68,24 @@ export const routes: Routes = [
         pathMatch: 'full'
       },
 
+
       {
         path: 'dashboard',
         component: Dashboard
       },
+
 
       {
         path: 'jobs',
         component: Jobs
       },
 
+
       {
         path: 'applications',
         component: Applications
       },
+
 
       {
         path: 'alerts',
@@ -87,6 +93,7 @@ export const routes: Routes = [
       }
 
     ]
+
   },
 
 
@@ -98,8 +105,8 @@ export const routes: Routes = [
     path: 'interviewer',
 
     canActivate: [
-      authGuard,
-      roleGuard
+      AuthGuard,
+      RoleGuard
     ],
 
     data: {
@@ -116,12 +123,14 @@ export const routes: Routes = [
         pathMatch: 'full'
       },
 
+
       {
         path: 'applications',
         component: Applications
       }
 
     ]
+
   },
 
 
@@ -135,4 +144,3 @@ export const routes: Routes = [
   }
 
 ];
-

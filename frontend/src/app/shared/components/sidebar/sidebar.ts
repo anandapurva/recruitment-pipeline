@@ -1,28 +1,31 @@
-import { Component, inject } from '@angular/core';
-
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink, RouterLinkActive} from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
-
 import { NavigationItem } from '../../../core/models/navigation';
+
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [
+    CommonModule,
     RouterLink,
     RouterLinkActive
   ],
+
   templateUrl: './sidebar.html',
-  styleUrl: './sidebar.css'
+
+  styleUrls: ['./sidebar.css']
 })
+
 export class Sidebar {
 
-  private authService =
-    inject(AuthService);
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-  private router =
-    inject(Router);
 
   readonly recruiterItems:
     NavigationItem[] = [
@@ -53,6 +56,7 @@ export class Sidebar {
 
   ];
 
+
   readonly interviewerItems:
     NavigationItem[] = [
 
@@ -64,26 +68,24 @@ export class Sidebar {
 
   ];
 
-  get items(): NavigationItem[] {
 
+  get items(): NavigationItem[] {
     const user =
       this.authService.getUser();
 
     if (
       user?.role === 'recruiter'
     ) {
+
       return this.recruiterItems;
     }
-
     return this.interviewerItems;
   }
 
+
   logout(): void {
-
     this.authService.logout();
-
-    this.router.navigate([
-      '/login'
-    ]);
+    this.router.navigate(['/login']);
   }
+
 }

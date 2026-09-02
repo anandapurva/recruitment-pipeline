@@ -1,5 +1,357 @@
-<h1>Job Openings</h1>
+<div class="jobs-page">
 
-<p>
-  Job opening management will be implemented here.
-</p>
+  <!-- Page Header -->
+  <div class="page-header">
+
+    <div>
+      <h1>Job Openings</h1>
+
+      <p>
+        Create and manage recruitment positions.
+      </p>
+    </div>
+
+
+    <div class="header-actions">
+
+      <!-- Show Archived / Show Active -->
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="toggleArchived()"
+      >
+        {{ showArchived ? 'Show Active' : 'Show Archived' }}
+      </button>
+
+
+      <!-- New Job Opening -->
+      <button
+        *ngIf="!showArchived"
+        type="button"
+        class="primary-button"
+        (click)="openCreateForm()"
+      >
+        + New Job Opening
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- Error Message -->
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <!-- Loading -->
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading job openings...
+  </div>
+
+
+  <!-- Job List -->
+  <div
+    *ngIf="!loading"
+    class="job-list"
+  >
+
+    <!-- Job Cards -->
+    <div
+      *ngFor="let job of jobs"
+      class="job-card"
+    >
+
+      <!-- Job Header -->
+      <div class="job-card-header">
+
+        <div>
+
+          <h2>
+            {{ job.title }}
+          </h2>
+
+          <p class="department">
+            {{ job.department }}
+          </p>
+
+        </div>
+
+
+        <!-- Status -->
+        <span
+          class="status"
+          [ngClass]="{
+            'status-open': job.status === 'open',
+            'status-closed': job.status === 'closed',
+            'status-archived': job.status === 'archived'
+          }"
+        >
+          {{ job.status }}
+        </span>
+
+      </div>
+
+
+      <!-- Description -->
+      <p
+        *ngIf="job.description"
+        class="description"
+      >
+        {{ job.description }}
+      </p>
+
+
+      <!-- Job Metadata -->
+      <div class="job-meta">
+
+        <span>
+          Created:
+          {{ job.created_at | date:'mediumDate' }}
+        </span>
+
+        <span>
+          Updated:
+          {{ job.updated_at | date:'mediumDate' }}
+        </span>
+
+      </div>
+
+
+      <!-- Job Actions -->
+      <div class="job-actions">
+
+        <!-- Edit + Archive -->
+        <div *ngIf="job.status !== 'archived'">
+
+          <button
+            type="button"
+            (click)="openEditForm(job)"
+          >
+            Edit
+          </button>
+
+          <button
+            type="button"
+            (click)="archiveJob(job)"
+          >
+            Archive
+          </button>
+
+        </div>
+
+
+        <!-- Restore -->
+        <div *ngIf="job.status === 'archived'">
+
+          <button
+            type="button"
+            (click)="restoreJob(job)"
+          >
+            Restore
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Empty State -->
+    <div
+      *ngIf="jobs.length === 0"
+      class="empty-state"
+    >
+
+      <!-- Archived Empty State -->
+      <div *ngIf="showArchived">
+
+        <h2>
+          No archived job openings
+        </h2>
+
+        <p>
+          Archived positions will appear here.
+        </p>
+
+      </div>
+
+
+      <!-- Active Empty State -->
+      <div *ngIf="!showArchived">
+
+        <h2>
+          No job openings
+        </h2>
+
+        <p>
+          Create your first job opening.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- Create / Edit Modal -->
+<div
+  *ngIf="showForm"
+  class="modal-backdrop"
+  (click)="closeForm()"
+>
+
+  <div
+    class="modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+
+      <h2>
+        {{ editingId !== null
+          ? 'Edit Job Opening'
+          : 'Create Job Opening'
+        }}
+      </h2>
+
+
+      <button
+        type="button"
+        class="close-button"
+        (click)="closeForm()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- Job Form -->
+    <form
+      #jobForm="ngForm"
+      (ngSubmit)="saveJob()"
+    >
+
+      <!-- Job Title -->
+      <div class="form-group">
+
+        <label for="title">
+          Job Title
+        </label>
+
+        <input
+          id="title"
+          type="text"
+          name="title"
+          [(ngModel)]="form.title"
+          placeholder="e.g. Software Engineer"
+          maxlength="150"
+          required
+        />
+
+      </div>
+
+
+      <!-- Department -->
+      <div class="form-group">
+
+        <label for="department">
+          Department
+        </label>
+
+        <input
+          id="department"
+          type="text"
+          name="department"
+          [(ngModel)]="form.department"
+          placeholder="e.g. Engineering"
+          maxlength="100"
+          required
+        />
+
+      </div>
+
+
+      <!-- Description -->
+      <div class="form-group">
+
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          name="description"
+          [(ngModel)]="form.description"
+          rows="5"
+          placeholder="Describe the role..."
+        ></textarea>
+
+      </div>
+
+
+      <!-- Status -->
+      <div class="form-group">
+
+        <label for="status">
+          Status
+        </label>
+
+        <select
+          id="status"
+          name="status"
+          [(ngModel)]="form.status"
+        >
+
+          <option value="open">
+            Open
+          </option>
+
+          <option value="closed">
+            Closed
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- Modal Buttons -->
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+
+
+        <button
+          type="submit"
+          class="primary-button"
+        >
+          Save Job
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
