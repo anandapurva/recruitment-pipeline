@@ -105,3 +105,30 @@ export interface InterviewPanelResponse {
   interviewers: Interviewer[];
 
 }
+
+export interface ApplicationHistory {
+
+  id: number;
+
+  application_id: number;
+
+  event_type:
+    | 'CREATED'
+    | 'STAGE_CHANGED'
+    | 'REJECTED'
+    | 'REINSTATED'
+    | 'FEEDBACK_ADDED';
+
+  old_stage: string | null;
+
+  new_stage: string | null;
+
+  performed_by: number;
+
+  feedback: string | null;
+
+  created_at: string;
+
+  performed_by_name?: string;
+
+}

@@ -102,3 +102,199 @@
   color: #a02020;
   border-radius: 6px;
 }
+
+.card-actions {
+  margin-top: 18px;
+}
+
+.primary-button {
+  padding: 9px 15px;
+  border: none;
+  border-radius: 6px;
+  background: #222;
+  color: white;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.details-modal {
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 25px;
+
+  background: white;
+
+  border-radius: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 25px;
+}
+
+.modal-header h2 {
+  margin: 0 0 5px;
+}
+
+.modal-header p {
+  margin: 0;
+  color: #666;
+}
+
+.close-button {
+  border: none;
+  background: transparent;
+
+  font-size: 26px;
+
+  cursor: pointer;
+}
+
+.detail-section {
+  padding: 20px 0;
+
+  border-top: 1px solid #eee;
+}
+
+.detail-section:first-of-type {
+  border-top: none;
+}
+
+.detail-section h3 {
+  margin: 0 0 15px;
+}
+
+.detail-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+.detail-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.interviewer-row {
+  padding: 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 7px;
+
+  margin-bottom: 8px;
+}
+
+.interviewer-row p {
+  margin: 4px 0 0;
+
+  color: #666;
+
+  font-size: 13px;
+}
+
+.empty-panel {
+  padding: 15px;
+
+  border: 1px dashed #ccc;
+
+  color: #777;
+}
+
+.detail-section textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
+  border: 1px solid #ccc;
+
+  border-radius: 6px;
+
+  resize: vertical;
+
+  font: inherit;
+}
+
+.feedback-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 10px;
+}
+
+.timeline-item {
+  position: relative;
+
+  display: flex;
+
+  gap: 15px;
+
+  padding-bottom: 20px;
+}
+
+.timeline-dot {
+  flex-shrink: 0;
+
+  width: 10px;
+  height: 10px;
+
+  margin-top: 5px;
+
+  border-radius: 50%;
+
+  background: #222;
+}
+
+.timeline-content {
+  flex: 1;
+
+  padding-bottom: 5px;
+}
+
+.timeline-content strong {
+  display: block;
+
+  margin-bottom: 4px;
+}
+
+.timeline-content p {
+  margin: 4px 0;
+
+  color: #555;
+}
+
+.timeline-content small {
+  color: #888;
+}

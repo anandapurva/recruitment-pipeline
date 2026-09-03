@@ -93,40 +93,57 @@ export class ApplicationService {
     '/interviewers'
   );
 
-}
+  }
 
 
-getInterviewPanel(applicationId: number): Observable<InterviewPanelResponse> {
+  getInterviewPanel(applicationId: number): Observable<InterviewPanelResponse> {
 
-  return this.api.get<InterviewPanelResponse>(
-    `/applications/${applicationId}/interviewers`
-  );
+    return this.api.get<InterviewPanelResponse>(
+      `/applications/${applicationId}/interviewers`
+    );
 
-}
-
-
-assignInterviewer(applicationId: number,interviewerId: number): Observable<any> {
-  return this.api.post<any>(
-    `/applications/${applicationId}/interviewers`,
-    {
-      interviewerId
-    }
-  );
-
-}
+  }
 
 
-removeInterviewer(applicationId: number,interviewerId: number): Observable<any> {
-  return this.api.delete<any>(
-    `/applications/${applicationId}/interviewers/${interviewerId}`
-  );
+  assignInterviewer(applicationId: number,interviewerId: number): Observable<any> {
+    return this.api.post<any>(
+      `/applications/${applicationId}/interviewers`,
+      {
+        interviewerId
+      }
+    );
 
-}
+  }
 
-getMyApplications(): Observable<any> {
 
+  removeInterviewer(applicationId: number,interviewerId: number): Observable<any> {
+    return this.api.delete<any>(
+      `/applications/${applicationId}/interviewers/${interviewerId}`
+    );
+
+  }
+
+  getMyApplications(): Observable<any> {
+
+    return this.api.get<any>(
+      '/interviewers/my-applications'
+    );
+
+  }
+
+  addFeedback(applicationId: number,feedback: string): Observable<any> {
+    return this.api.post<any>(
+      `/applications/${applicationId}/feedback`,
+      {
+        feedback
+      }
+    );
+
+  }
+
+  getApplicationHistory(applicationId: number): Observable<any> {
   return this.api.get<any>(
-    '/interviewers/my-applications'
+    `/applications/${applicationId}/history`
   );
 
 }

@@ -65,7 +65,7 @@
           </span>
 
           <span>
-            {{ application.job_title || 'Not specified' }}
+            {{ application.job_title }}
           </span>
 
         </div>
@@ -78,7 +78,7 @@
           </span>
 
           <span>
-            {{ application.job_department || application.department || 'Not specified' }}
+            {{ application.job_department || application.department }}
           </span>
 
         </div>
@@ -112,18 +112,15 @@
       </div>
 
 
-      <div
-        *ngIf="application.notes"
-        class="notes"
-      >
+      <div class="card-actions">
 
-        <span class="label">
-          Notes
-        </span>
-
-        <p>
-          {{ application.notes }}
-        </p>
+        <button
+          type="button"
+          class="primary-button"
+          (click)="openApplication(application)"
+        >
+          View Details
+        </button>
 
       </div>
 
@@ -144,6 +141,312 @@
       </p>
 
     </div>
+
+  </div>
+
+</div>
+
+
+<!-- ========================= -->
+<!-- APPLICATION DETAILS MODAL -->
+<!-- ========================= -->
+
+<div
+  *ngIf="selectedApplication"
+  class="modal-backdrop"
+  (click)="closeApplication()"
+>
+
+  <div
+    class="details-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2>
+          {{ selectedApplication.candidate_name }}
+        </h2>
+
+        <p>
+          {{ selectedApplication.candidate_email }}
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="close-button"
+        (click)="closeApplication()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="detail-section">
+
+      <h3>
+        Application Details
+      </h3>
+
+      <div class="detail-grid">
+
+        <div>
+
+          <span class="label">
+            Job
+          </span>
+
+          <span>
+            {{ selectedApplication.job_title }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Department
+          </span>
+
+          <span>
+            {{ selectedApplication.job_department }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Current Stage
+          </span>
+
+          <span class="stage">
+            {{ selectedApplication.stage }}
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- INTERVIEW PANEL -->
+
+    <div class="detail-section">
+
+      <h3>
+        Interview Panel
+      </h3>
+
+
+      <div
+        *ngIf="panelLoading"
+        class="loading"
+      >
+        Loading panel...
+      </div>
+
+
+      <div
+        *ngIf="
+          !panelLoading &&
+          panelInterviewers.length === 0
+        "
+        class="empty-panel"
+      >
+        No interviewers found.
+      </div>
+
+
+      <div
+        *ngFor="
+          let interviewer of panelInterviewers
+        "
+        class="interviewer-row"
+      >
+
+        <div>
+
+          <strong>
+            {{ interviewer.name }}
+          </strong>
+
+          <p>
+            {{ interviewer.email }}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- FEEDBACK -->
+
+    <div class="detail-section">
+
+      <h3>
+        Add Interview Feedback
+      </h3>
+
+
+      <textarea
+        [(ngModel)]="feedbackText"
+        rows="5"
+        placeholder="Enter your interview feedback..."
+      ></textarea>
+
+
+      <div class="feedback-actions">
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="submitFeedback()"
+          [disabled]="
+            !feedbackText.trim() ||
+            feedbackLoading
+          "
+        >
+
+          <span
+            *ngIf="!feedbackLoading"
+          >
+            Submit Feedback
+          </span>
+
+          <span
+            *ngIf="feedbackLoading"
+          >
+            Saving...
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="detail-section">
+
+  <h3>
+    Application Timeline
+  </h3>
+
+
+  <div
+    *ngIf="history.length === 0"
+    class="empty-panel"
+  >
+    No timeline events found.
+  </div>
+
+
+  <div
+    *ngFor="let event of history"
+    class="timeline-item"
+  >
+
+    <div class="timeline-dot"></div>
+
+
+    <div class="timeline-content">
+
+      <strong
+        *ngIf="event.event_type === 'CREATED'"
+      >
+        Application Created
+      </strong>
+
+
+      <strong
+        *ngIf="event.event_type === 'STAGE_CHANGED'"
+      >
+        Stage Changed
+      </strong>
+
+
+      <strong
+        *ngIf="event.event_type === 'REJECTED'"
+      >
+        Application Rejected
+      </strong>
+
+
+      <strong
+        *ngIf="event.event_type === 'REINSTATED'"
+      >
+        Application Reinstated
+      </strong>
+
+
+      <strong
+        *ngIf="event.event_type === 'FEEDBACK_ADDED'"
+      >
+        Interview Feedback Added
+      </strong>
+
+
+      <p
+        *ngIf="
+          event.event_type === 'STAGE_CHANGED'
+        "
+      >
+        {{ event.old_stage }}
+        →
+        {{ event.new_stage }}
+      </p>
+
+
+      <p
+        *ngIf="
+          event.event_type === 'REJECTED'
+        "
+      >
+        Rejected from
+        {{ event.old_stage }}
+      </p>
+
+
+      <p
+        *ngIf="
+          event.event_type === 'REINSTATED'
+        "
+      >
+        Restored to
+        {{ event.new_stage }}
+      </p>
+
+
+      <p
+        *ngIf="
+          event.event_type === 'FEEDBACK_ADDED'
+          && event.feedback
+        "
+      >
+        {{ event.feedback }}
+      </p>
+
+
+      <small>
+        {{ event.created_at | date:'medium' }}
+      </small>
+
+    </div>
+
+  </div>
+
+</div>
 
   </div>
 
