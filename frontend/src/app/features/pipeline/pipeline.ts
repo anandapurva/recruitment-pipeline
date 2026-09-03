@@ -3,12 +3,16 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef } from '@angular/core';
 import { ApplicationService } from '../../core/services/application';
-import { Application, ApplicationStage } from '../../core/models/application';
+import { Application, ApplicationStage, Interviewer } from '../../core/models/application';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-pipeline',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    FormsModule
+  ],
   templateUrl: './pipeline.html',
   styleUrl: './pipeline.css'
 })
@@ -41,6 +45,18 @@ export class Pipeline implements OnInit {
     'Rejected'
   ];
 
+  panelApplication: Application | null = null;
+
+  panelInterviewers: Interviewer[] = [];
+
+  availableInterviewers: Interviewer[] = [];
+
+  selectedInterviewerId: number | null = null;
+
+  panelLoading: boolean = false;
+
+  panelError: string = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -66,84 +82,44 @@ export class Pipeline implements OnInit {
 
   }
 
-  // loadPipeline(): void {
+  loadPipeline(): void {
+    this.loading = true;
+    this.errorMessage = '';
 
-  //   this.loading = true;
+    this.applicationService
+      .getApplicationsByJob(this.jobId)
+      .subscribe({
 
-  //   this.errorMessage = '';
+        next: response => {
 
-  //   this.applicationService
-  //     .getApplicationsByJob(this.jobId)
-  //     .subscribe({
+          this.applications = response.applications;
 
-  //       next: response => {
+          this.jobTitle = response.job.title;
+          this.jobDepartment = response.job.department;
+          this.jobStatus = response.job.status;
 
-  //         this.applications = response.applications;
+          this.loading = false;
 
-  //         this.jobTitle = response.job.title;
+          // Force Angular to update the UI
+          this.cdr.detectChanges();
 
-  //         this.jobDepartment = response.job.department;
+        },
 
-  //         this.jobStatus = response.job.status;
+        error: error => {
 
-  //         this.loading = false;
+          this.errorMessage =
+            error?.error?.message ||
+            'Unable to load pipeline.';
 
-  //       },
+          this.loading = false;
 
-  //       error: error => {
+          this.cdr.detectChanges();
 
-  //         console.error(error);
+        }
 
-  //         this.errorMessage =
-  //           error?.error?.message ||
-  //           'Unable to load pipeline.';
+      });
 
-  //         this.loading = false;
-
-  //       }
-
-  //     });
-
-  // }
-
-loadPipeline(): void {
-  this.loading = true;
-  this.errorMessage = '';
-
-  this.applicationService
-    .getApplicationsByJob(this.jobId)
-    .subscribe({
-
-      next: response => {
-
-        this.applications = response.applications;
-
-        this.jobTitle = response.job.title;
-        this.jobDepartment = response.job.department;
-        this.jobStatus = response.job.status;
-
-        this.loading = false;
-
-        // Force Angular to update the UI
-        this.cdr.detectChanges();
-
-      },
-
-      error: error => {
-
-        this.errorMessage =
-          error?.error?.message ||
-          'Unable to load pipeline.';
-
-        this.loading = false;
-
-        this.cdr.detectChanges();
-
-      }
-
-    });
-
-}
+  }
 
   getApplicationsByStage(
     stage: ApplicationStage
@@ -310,5 +286,171 @@ loadPipeline(): void {
     ]);
 
   }
+
+  openPanel(application: Application): void {
+
+  this.panelApplication = application;
+
+  this.panelInterviewers = [];
+
+  this.panelError = '';
+
+  this.selectedInterviewerId = null;
+
+  this.panelLoading = true;
+
+  this.applicationService
+    .getInterviewPanel(application.id)
+    .subscribe({
+
+      next: response => {
+
+        this.panelInterviewers =
+          response.interviewers;
+
+        this.loadAvailableInterviewers();
+        this.cdr.detectChanges();
+
+      },
+
+      error: error => {
+
+        console.error(error);
+
+        this.panelError =
+          error?.error?.message ||
+          'Unable to load interview panel.';
+
+        this.panelLoading = false;
+        this.cdr.detectChanges();
+
+      }
+
+    });
+
+}
+
+loadAvailableInterviewers(): void {
+
+  this.applicationService
+    .getInterviewers()
+    .subscribe({
+
+      next: response => {
+
+        this.availableInterviewers =
+          response.interviewers;
+
+        this.panelLoading = false;
+        this.cdr.detectChanges();
+
+      },
+
+      error: error => {
+
+        console.error(error);
+
+        this.panelError =
+          error?.error?.message ||
+          'Unable to load interviewers.';
+
+        this.panelLoading = false;
+
+      }
+
+    });
+
+}
+
+assignInterviewer(): void {
+
+  if (
+    !this.panelApplication ||
+    this.selectedInterviewerId === null
+  ) {
+    return;
+  }
+
+  this.panelError = '';
+
+  this.applicationService
+    .assignInterviewer(
+      this.panelApplication.id,
+      this.selectedInterviewerId
+    )
+    .subscribe({
+
+      next: () => {
+
+        this.openPanel(
+          this.panelApplication!
+        );
+
+      },
+
+      error: error => {
+
+        console.error(error);
+
+        this.panelError =
+          error?.error?.message ||
+          'Unable to assign interviewer.';
+
+      }
+
+    });
+
+}
+
+removeInterviewer(
+  interviewer: Interviewer
+): void {
+
+  if (!this.panelApplication) {
+    return;
+  }
+
+  this.applicationService
+    .removeInterviewer(
+      this.panelApplication.id,
+      interviewer.id
+    )
+    .subscribe({
+
+      next: () => {
+
+        this.openPanel(
+          this.panelApplication!
+        );
+
+      },
+
+      error: error => {
+
+        console.error(error);
+
+        this.panelError =
+          error?.error?.message ||
+          'Unable to remove interviewer.';
+
+      }
+
+    });
+
+}
+
+closePanel(): void {
+
+  this.panelApplication = null;
+
+  this.panelInterviewers = [];
+
+  this.availableInterviewers = [];
+
+  this.selectedInterviewerId = null;
+
+  this.panelError = '';
+
+}
 
 }

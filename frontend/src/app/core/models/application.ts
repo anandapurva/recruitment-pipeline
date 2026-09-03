@@ -31,6 +31,8 @@ export interface Application {
 
   job_department?: string;
 
+  department?: string;
+
 }
 
 
@@ -71,5 +73,35 @@ export interface JobApplicationsResponse {
   };
 
   applications: Application[];
+
+}
+
+export interface Interviewer {
+
+  id: number;
+
+  name: string;
+
+  email: string;
+
+  assigned_at?: string;
+
+}
+
+
+export interface InterviewersResponse {
+
+  success: boolean;
+
+  interviewers: Interviewer[];
+
+}
+
+
+export interface InterviewPanelResponse {
+
+  success: boolean;
+
+  interviewers: Interviewer[];
 
 }

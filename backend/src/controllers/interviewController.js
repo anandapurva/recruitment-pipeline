@@ -67,7 +67,9 @@ const getPanel = async (req, res) => {
 
         const interviewers =
             await interviewService.getPanel(
-                req.params.id
+                req.params.id,
+                req.user.id,
+                req.user.role
             );
 
         res.json({
@@ -80,6 +82,29 @@ const getPanel = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Failed to fetch interview panel"
+        });
+    }
+};
+
+const getInterviewers = async (req, res) => {
+
+    try {
+
+        const interviewers =
+            await interviewService.getInterviewers();
+
+        res.json({
+            success: true,
+            interviewers
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch interviewers"
         });
     }
 };
@@ -142,5 +167,6 @@ module.exports = {
     remove,
     getPanel,
     myApplications,
-    feedback
+    feedback,
+    getInterviewers
 };

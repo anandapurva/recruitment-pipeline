@@ -18,6 +18,9 @@ import { Applications } from './features/applications/applications';
 import { Alerts } from './features/alerts/alerts';
 import { Pipeline } from './features/pipeline/pipeline';
 
+
+import { InterviewerApplications } from './features/interviewer-applications/interviewer-applications';
+
 export const routes: Routes = [
 
   // =====================
@@ -134,7 +137,7 @@ export const routes: Routes = [
 
       {
         path: 'applications',
-        component: Applications
+        component: InterviewerApplications
       }
 
     ]

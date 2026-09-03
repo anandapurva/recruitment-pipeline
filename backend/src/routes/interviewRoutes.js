@@ -35,6 +35,13 @@ router.get(
     controller.getPanel
 );
 
+router.get(
+    "/interviewers",
+    authenticate,
+    requireRole("recruiter"),
+    controller.getInterviewers
+);
+
 //  Interviewer's assigned applications
 router.get(
     "/interviewers/my-applications",

@@ -8,7 +8,10 @@ import {
   Application,
   CreateApplicationRequest,
   UpdateApplicationRequest,
-  JobApplicationsResponse
+  JobApplicationsResponse,
+  Interviewer,
+  InterviewersResponse,
+  InterviewPanelResponse
 } from '../models/application';
 
 
@@ -22,13 +25,13 @@ export class ApplicationService {
   ) {}
 
 
-    getApplicationsByJob(jobId: number): Observable<JobApplicationsResponse> {
+  getApplicationsByJob(jobId: number): Observable<JobApplicationsResponse> {
 
-    return this.api.get<JobApplicationsResponse>(
-        `/jobs/${jobId}/applications`
-    );
+  return this.api.get<JobApplicationsResponse>(
+      `/jobs/${jobId}/applications`
+  );
 
-    }
+  }
 
 
   getApplication(
@@ -61,35 +64,69 @@ export class ApplicationService {
 
   }
 
-  advanceApplication(
-  id: number
-): Observable<any> {
-
+  advanceApplication(id: number): Observable<any> {
   return this.api.patch<any>(
     `/applications/${id}/advance`,
     {}
   );
 
-}
+  }
 
-rejectApplication(
-  id: number
-): Observable<any> {
+  rejectApplication(id: number): Observable<any> {
+    return this.api.patch<any>(
+      `/applications/${id}/reject`,
+      {}
+    );
 
-  return this.api.patch<any>(
-    `/applications/${id}/reject`,
-    {}
+  }
+
+  reinstateApplication(id: number): Observable<any> {
+    return this.api.patch<any>(
+      `/applications/${id}/reinstate`,
+      {}
+    );
+
+  }
+
+  getInterviewers(): Observable<InterviewersResponse> {
+  return this.api.get<InterviewersResponse>(
+    '/interviewers'
   );
 
 }
 
-reinstateApplication(
-  id: number
-): Observable<any> {
 
-  return this.api.patch<any>(
-    `/applications/${id}/reinstate`,
-    {}
+getInterviewPanel(applicationId: number): Observable<InterviewPanelResponse> {
+
+  return this.api.get<InterviewPanelResponse>(
+    `/applications/${applicationId}/interviewers`
+  );
+
+}
+
+
+assignInterviewer(applicationId: number,interviewerId: number): Observable<any> {
+  return this.api.post<any>(
+    `/applications/${applicationId}/interviewers`,
+    {
+      interviewerId
+    }
+  );
+
+}
+
+
+removeInterviewer(applicationId: number,interviewerId: number): Observable<any> {
+  return this.api.delete<any>(
+    `/applications/${applicationId}/interviewers/${interviewerId}`
+  );
+
+}
+
+getMyApplications(): Observable<any> {
+
+  return this.api.get<any>(
+    '/interviewers/my-applications'
   );
 
 }

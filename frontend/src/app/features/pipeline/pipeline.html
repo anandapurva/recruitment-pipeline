@@ -264,6 +264,14 @@
 
             <button
               type="button"
+              (click)="openPanel(application)"
+              [disabled]="processingId === application.id"
+            >
+              Interview Panel
+            </button>
+
+            <button
+              type="button"
               (click)="advance(application)"
               [disabled]="processingId === application.id"
             >
@@ -483,5 +491,147 @@
     </div>
 
   </div>
+
+  <div
+  *ngIf="panelApplication"
+  class="modal-backdrop"
+  (click)="closePanel()"
+>
+
+  <div
+    class="panel-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2>
+          Interview Panel
+        </h2>
+
+        <p>
+          {{ panelApplication.candidate_name }}
+        </p>
+
+      </div>
+
+      <button
+        type="button"
+        class="close-button"
+        (click)="closePanel()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div
+      *ngIf="panelError"
+      class="error-message"
+    >
+      {{ panelError }}
+    </div>
+
+
+    <div
+      *ngIf="panelLoading"
+      class="loading"
+    >
+      Loading interview panel...
+    </div>
+
+
+    <div *ngIf="!panelLoading">
+
+      <h3>
+        Assigned Interviewers
+      </h3>
+
+
+      <div
+        *ngIf="panelInterviewers.length === 0"
+        class="empty-panel"
+      >
+        No interviewers assigned yet.
+      </div>
+
+
+      <div
+        *ngFor="
+          let interviewer of panelInterviewers
+        "
+        class="interviewer-row"
+      >
+
+        <div>
+
+          <strong>
+            {{ interviewer.name }}
+          </strong>
+
+          <p>
+            {{ interviewer.email }}
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          class="remove-button"
+          (click)="removeInterviewer(interviewer)"
+        >
+          Remove
+        </button>
+
+      </div>
+
+
+      <div class="assign-section">
+
+        <h3>
+          Assign Interviewer
+        </h3>
+
+        <select
+          [(ngModel)]="selectedInterviewerId"
+        >
+
+          <option [ngValue]="null">
+            Select interviewer
+          </option>
+
+          <option
+            *ngFor="
+              let interviewer of availableInterviewers
+            "
+            [ngValue]="interviewer.id"
+          >
+            {{ interviewer.name }}
+            -
+            {{ interviewer.email }}
+          </option>
+
+        </select>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="assignInterviewer()"
+          [disabled]="selectedInterviewerId === null"
+        >
+          Assign Interviewer
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
 </div>

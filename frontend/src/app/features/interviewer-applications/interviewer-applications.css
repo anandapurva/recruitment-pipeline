@@ -1,0 +1,104 @@
+.applications-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 25px;
+}
+
+.page-header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 0;
+  color: #666;
+}
+
+.application-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.application-card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+}
+
+.candidate-info h2 {
+  margin: 0 0 5px;
+  font-size: 20px;
+}
+
+.candidate-info p {
+  margin: 0;
+  color: #666;
+}
+
+.application-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 18px;
+}
+
+.application-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #777;
+  text-transform: uppercase;
+}
+
+.stage {
+  font-weight: 600;
+}
+
+.notes {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.notes p {
+  margin: 7px 0 0;
+  color: #555;
+}
+
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+}
+
+.empty-state h2 {
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: #666;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+}
+
+.error-message {
+  margin-bottom: 20px;
+  padding: 12px 15px;
+  background: #fdecec;
+  color: #a02020;
+  border-radius: 6px;
+}

@@ -1,0 +1,150 @@
+<div class="applications-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        My Applications
+      </h1>
+
+      <p>
+        Applications assigned to you for interviews
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading applications...
+  </div>
+
+
+  <div
+    *ngIf="!loading"
+    class="application-list"
+  >
+
+    <div
+      *ngFor="let application of applications"
+      class="application-card"
+    >
+
+      <div class="candidate-info">
+
+        <h2>
+          {{ application.candidate_name }}
+        </h2>
+
+        <p>
+          {{ application.candidate_email }}
+        </p>
+
+      </div>
+
+
+      <div class="application-details">
+
+        <div>
+
+          <span class="label">
+            Job
+          </span>
+
+          <span>
+            {{ application.job_title || 'Not specified' }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Department
+          </span>
+
+          <span>
+            {{ application.job_department || application.department || 'Not specified' }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Stage
+          </span>
+
+          <span class="stage">
+            {{ application.stage }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Source
+          </span>
+
+          <span>
+            {{ application.source || 'Not specified' }}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div
+        *ngIf="application.notes"
+        class="notes"
+      >
+
+        <span class="label">
+          Notes
+        </span>
+
+        <p>
+          {{ application.notes }}
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div
+      *ngIf="applications.length === 0"
+      class="empty-state"
+    >
+
+      <h2>
+        No applications assigned
+      </h2>
+
+      <p>
+        You currently have no applications assigned to you.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

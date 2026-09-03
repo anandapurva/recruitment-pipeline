@@ -113,21 +113,38 @@ const removeInterviewer = async (
 };
 
 // Get application panel
-const getPanel = async (applicationId) => {
+const getPanel = async (applicationId, userId, userRole) => {
 
-    const [interviewers] = await db.query(
-        `SELECT
-            u.id,
-            u.name,
-            u.email,
-            ai.assigned_at
-         FROM application_interviewers ai
-         JOIN users u
-           ON u.id = ai.interviewer_id
-         WHERE ai.application_id = ?
-         ORDER BY ai.assigned_at`,
-        [applicationId]
-    );
+    // Interviewers can only view panels for applications assigned to them.
+    if (userRole === "interviewer") {
+
+        const assigned =
+            await isAssignedInterviewer(
+                applicationId,
+                userId
+            );
+
+        if (!assigned) {
+            throw new Error(
+                "You are not assigned to this application"
+            );
+        }
+    }
+
+    const [interviewers] =
+        await db.query(
+            `SELECT
+                u.id,
+                u.name,
+                u.email,
+                ai.assigned_at
+             FROM application_interviewers ai
+             JOIN users u
+               ON u.id = ai.interviewer_id
+             WHERE ai.application_id = ?
+             ORDER BY ai.assigned_at`,
+            [applicationId]
+        );
 
     return interviewers;
 };
@@ -146,7 +163,7 @@ const getMyApplications = async (interviewerId) => {
             a.stage_changed_at,
             j.id AS job_id,
             j.title AS job_title,
-            j.department
+            j.department AS job_department
          FROM application_interviewers ai
          JOIN applications a
            ON a.id = ai.application_id
@@ -158,6 +175,21 @@ const getMyApplications = async (interviewerId) => {
     );
 
     return applications;
+};
+
+const getInterviewers = async () => {
+
+    const [interviewers] = await db.query(
+        `SELECT
+            id,
+            name,
+            email
+         FROM users
+         WHERE role = 'interviewer'
+         ORDER BY name`
+    );
+
+    return interviewers;
 };
 
 // Add an access-check helper
@@ -272,6 +304,7 @@ module.exports = {
     removeInterviewer,
     getPanel,
     getMyApplications,
+    getInterviewers,
     isAssignedInterviewer,
     addFeedback
 };
