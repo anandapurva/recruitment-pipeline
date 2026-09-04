@@ -13,7 +13,8 @@ import {
   InterviewersResponse,
   InterviewPanelResponse,
   ApplicationSearchParams,
-  ApplicationSearchResponse
+  ApplicationSearchResponse,
+  ApplicationHistory
 } from '../models/application';
 
 
@@ -143,131 +144,121 @@ export class ApplicationService {
 
   }
 
-  getApplicationHistory(applicationId: number): Observable<any> {
-  return this.api.get<any>(
-    `/applications/${applicationId}/history`
-  );
-
-}
-
-exportPipeline(): Observable<Blob> {
-
-  return this.api.getBlob(
-    '/applications/export'
-  );
-
-}
-
-searchApplications(
-  params: ApplicationSearchParams
-): Observable<ApplicationSearchResponse> {
-
-  const queryParams: string[] = [];
-
-
-  if (params.search) {
-
-    queryParams.push(
-      `search=${encodeURIComponent(params.search)}`
+  getApplicationHistory(applicationId: number): Observable<{success: boolean;history: ApplicationHistory[];}> {
+    return this.api.get<{
+      success: boolean;
+      history: ApplicationHistory[];
+    }>(
+      `/applications/${applicationId}/history`
     );
 
   }
 
+  exportPipeline(): Observable<Blob> {
 
-  if (params.jobId) {
-
-    queryParams.push(
-      `jobId=${params.jobId}`
+    return this.api.getBlob(
+      '/applications/export'
     );
 
   }
 
+  searchApplications(params: ApplicationSearchParams): Observable<ApplicationSearchResponse> {
 
-  if (params.stage) {
+    const queryParams: string[] = [];
+    if (params.search) {
 
-    queryParams.push(
-      `stage=${encodeURIComponent(params.stage)}`
-    );
+      queryParams.push(
+        `search=${encodeURIComponent(params.search)}`
+      );
 
-  }
-
-
-  if (params.source) {
-
-    queryParams.push(
-      `source=${encodeURIComponent(params.source)}`
-    );
-
-  }
-
-
-  if (params.sortBy) {
-
-    queryParams.push(
-      `sortBy=${params.sortBy}`
-    );
-
-  }
-
-
-  if (params.sortOrder) {
-
-    queryParams.push(
-      `sortOrder=${params.sortOrder}`
-    );
-
-  }
-
-
-  if (params.page) {
-
-    queryParams.push(
-      `page=${params.page}`
-    );
-
-  }
-
-
-  if (params.limit) {
-
-    queryParams.push(
-      `limit=${params.limit}`
-    );
-
-  }
-
-
-  const queryString =
-    queryParams.length > 0
-      ? `?${queryParams.join('&')}`
-      : '';
-
-
-  return this.api.get<ApplicationSearchResponse>(
-    `/applications${queryString}`
-  );
-
-}
-
-bulkAdvance(applicationIds: number[]): Observable<any> {
-  return this.api.post<any>(
-    '/applications/bulk/advance',
-    {
-      applicationIds
     }
-  );
 
-}
+    if (params.jobId) {
 
+      queryParams.push(
+        `jobId=${params.jobId}`
+      );
 
-bulkReject(applicationIds: number[]): Observable<any> {
-  return this.api.post<any>(
-    '/applications/bulk/reject',
-    {
-      applicationIds
     }
-  );
 
-}
+    if (params.stage) {
+
+      queryParams.push(
+        `stage=${encodeURIComponent(params.stage)}`
+      );
+
+    }
+
+    if (params.source) {
+      queryParams.push(
+        `source=${encodeURIComponent(params.source)}`
+      );
+
+    }
+
+    if (params.sortBy) {
+
+      queryParams.push(
+        `sortBy=${params.sortBy}`
+      );
+
+    }
+
+    if (params.sortOrder) {
+
+      queryParams.push(
+        `sortOrder=${params.sortOrder}`
+      );
+
+    }
+
+    if (params.page) {
+
+      queryParams.push(
+        `page=${params.page}`
+      );
+
+    }
+
+    if (params.limit) {
+
+      queryParams.push(
+        `limit=${params.limit}`
+      );
+
+    }
+
+    const queryString =
+      queryParams.length > 0
+        ? `?${queryParams.join('&')}`
+        : '';
+
+
+    return this.api.get<ApplicationSearchResponse>(
+      `/applications${queryString}`
+    );
+
+  }
+
+  bulkAdvance(applicationIds: number[]): Observable<any> {
+    return this.api.post<any>(
+      '/applications/bulk/advance',
+      {
+        applicationIds
+      }
+    );
+
+  }
+
+
+  bulkReject(applicationIds: number[]): Observable<any> {
+    return this.api.post<any>(
+      '/applications/bulk/reject',
+      {
+        applicationIds
+      }
+    );
+
+  }
 
 }

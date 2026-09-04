@@ -289,6 +289,35 @@ export class Applications implements OnInit {
 
   }
 
+reinstateApplication(application: Application): void {
+
+  this.applicationService
+    .reinstateApplication(application.id)
+    .subscribe({
+
+      next: response => {
+
+        console.log('REINSTATE RESPONSE:', response);
+
+        this.errorMessage = '';
+
+        this.loadApplications();
+
+      },
+
+      error: error => {
+
+        console.error('REINSTATE ERROR:', error);
+
+        this.errorMessage =
+          error?.error?.message ||
+          'Unable to reinstate application.';
+
+      }
+
+    });
+
+}
 
   goBack(): void {
 

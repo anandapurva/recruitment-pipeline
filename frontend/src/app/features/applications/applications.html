@@ -168,6 +168,15 @@
           Edit
         </button>
 
+        <button
+          *ngIf="application.stage === 'Rejected'"
+          type="button"
+          class="reinstate-button"
+          (click)="reinstateApplication(application)"
+        >
+          Reinstate
+        </button>
+
       </div>
 
     </div>

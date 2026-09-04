@@ -1,4 +1,10 @@
 .topbar {
+  position: fixed;
+
+  top: 0;
+  left: 240px;
+  right: 0;
+
   height: 64px;
 
   display: flex;
@@ -7,7 +13,13 @@
 
   padding: 0 24px;
 
+  background: white;
+
   border-bottom: 1px solid #ddd;
+
+  z-index: 999;
+
+  box-sizing: border-box;
 }
 
 .topbar h1 {
@@ -18,7 +30,6 @@
 .user-info {
   display: flex;
   align-items: center;
-
   gap: 10px;
 }
 

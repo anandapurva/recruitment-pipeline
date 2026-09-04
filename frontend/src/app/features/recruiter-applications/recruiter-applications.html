@@ -12,17 +12,15 @@
         View all candidate applications across your job openings.
       </p>
 
+            <button
+                type="button"
+                class="export-button"
+                (click)="exportPipeline()"
+                >
+                Export CSV
+            </button>
       
-
     </div>
-
-      <button
-  type="button"
-  class="export-button"
-  (click)="exportPipeline()"
->
-  Export CSV
-</button>
 
   </div>
 
@@ -207,6 +205,14 @@
 
       </div>
 
+      <button
+  type="button"
+  class="history-button"
+  (click)="viewHistory(application.id)"
+>
+  View Timeline
+</button>
+
     </div>
 
 
@@ -265,5 +271,204 @@
 </div>
 
   </div>
+
+  <!-- ========================= -->
+<!-- HISTORY MODAL -->
+<!-- ========================= -->
+
+<div
+  *ngIf="showHistory"
+  class="history-overlay"
+  (click)="closeHistory()"
+>
+
+  <div
+    class="history-modal"
+    (click)="$event.stopPropagation()"
+  >
+
+    <div class="history-header">
+
+      <div>
+
+        <h2>
+          Application Timeline
+        </h2>
+
+        <p
+          *ngIf="selectedApplication"
+        >
+          {{ selectedApplication.candidate_name }}
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="close-button"
+        (click)="closeHistory()"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div
+      *ngIf="historyLoading"
+      class="history-loading"
+    >
+      Loading timeline...
+    </div>
+
+
+    <div
+      *ngIf="historyError"
+      class="history-error"
+    >
+      {{ historyError }}
+    </div>
+
+
+    <div
+      *ngIf="
+        !historyLoading &&
+        !historyError &&
+        applicationHistory.length === 0
+      "
+      class="history-empty"
+    >
+      No history available.
+    </div>
+
+
+    <div
+      *ngIf="
+        !historyLoading &&
+        applicationHistory.length > 0
+      "
+      class="timeline"
+    >
+
+      <div
+        *ngFor="
+          let event of applicationHistory
+        "
+        class="timeline-item"
+      >
+
+        <div class="timeline-marker"></div>
+
+
+        <div class="timeline-content">
+
+          <div class="timeline-top">
+
+            <strong>
+              {{ getHistoryTitle(event) }}
+            </strong>
+
+            <span class="timeline-date">
+              {{ event.created_at | date:'medium' }}
+            </span>
+
+          </div>
+
+
+          <div
+            *ngIf="
+              event.event_type === 'STAGE_CHANGED'
+            "
+            class="stage-change"
+          >
+
+            <span>
+              {{ event.old_stage }}
+            </span>
+
+            <span>
+              →
+            </span>
+
+            <strong>
+              {{ event.new_stage }}
+            </strong>
+
+          </div>
+
+
+          <div
+            *ngIf="
+              event.event_type === 'REJECTED'
+            "
+            class="stage-change"
+          >
+
+            <span>
+              Rejected from
+            </span>
+
+            <strong>
+              {{ event.old_stage }}
+            </strong>
+
+          </div>
+
+
+          <div
+            *ngIf="
+              event.event_type === 'REINSTATED'
+            "
+            class="stage-change"
+          >
+
+            <span>
+              Reinstated to
+            </span>
+
+            <strong>
+              {{ event.new_stage }}
+            </strong>
+
+          </div>
+
+
+          <div
+            *ngIf="event.feedback"
+            class="feedback"
+          >
+
+            <span class="feedback-label">
+              Feedback
+            </span>
+
+            <p>
+              {{ event.feedback }}
+            </p>
+
+          </div>
+
+
+          <div
+            *ngIf="event.performed_by_name"
+            class="performed-by"
+          >
+
+            By:
+            {{ event.performed_by_name }}
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
 </div>

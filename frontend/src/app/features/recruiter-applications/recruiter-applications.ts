@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Application } from '../../core/models/application';
+import { Application, ApplicationHistory } from '../../core/models/application';
 import { ApplicationService } from '../../core/services/application';
 
 
@@ -35,6 +35,15 @@ implements OnInit {
 
   bulkResults: any[] = [];
 
+  showHistory = false;
+
+  historyLoading = false;
+
+  historyError = '';
+
+  selectedApplication: Application | null = null;
+
+  applicationHistory: ApplicationHistory[] = [];
 
   constructor(
     private applicationService:
@@ -292,5 +301,90 @@ implements OnInit {
     });
 
 }
+
+  viewHistory(applicationId: number): void {
+
+    this.selectedApplication =
+      this.applications.find(
+        application =>
+          application.id === applicationId
+      ) || null;
+
+    this.applicationHistory = [];
+
+    this.historyError = '';
+
+    this.historyLoading = true;
+
+    this.showHistory = true;
+
+
+    this.applicationService
+      .getApplicationHistory(applicationId)
+      .subscribe({
+
+        next: response => {
+
+          this.applicationHistory =
+            response.history || [];
+
+          this.historyLoading = false;
+
+          this.cdr.detectChanges();
+
+        },
+
+        error: error => {
+
+          this.historyError =
+            error?.error?.message ||
+            'Unable to load application history.';
+
+          this.historyLoading = false;
+
+          this.cdr.detectChanges();
+
+        }
+
+      });
+
+  }
+
+  closeHistory(): void {
+
+    this.showHistory = false;
+
+    this.selectedApplication = null;
+
+    this.applicationHistory = [];
+
+    this.historyError = '';
+
+  }
+
+  getHistoryTitle(event: ApplicationHistory): string {
+    switch (event.event_type) {
+
+      case 'CREATED':
+        return 'Application Created';
+
+      case 'STAGE_CHANGED':
+        return 'Stage Changed';
+
+      case 'REJECTED':
+        return 'Application Rejected';
+
+      case 'REINSTATED':
+        return 'Application Reinstated';
+
+      case 'FEEDBACK_ADDED':
+        return 'Interviewer Feedback Added';
+
+      default:
+        return 'Application Updated';
+
+    }
+
+  }
 
 }

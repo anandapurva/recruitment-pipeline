@@ -172,3 +172,30 @@ export interface ApplicationSearchResponse {
   };
 
 }
+
+export interface ApplicationHistory {
+
+  id: number;
+
+  application_id: number;
+
+  event_type:
+    | 'CREATED'
+    | 'STAGE_CHANGED'
+    | 'REJECTED'
+    | 'REINSTATED'
+    | 'FEEDBACK_ADDED';
+
+  old_stage: string | null;
+
+  new_stage: string | null;
+
+  performed_by: number;
+
+  performed_by_name?: string;
+
+  feedback: string | null;
+
+  created_at: string;
+
+}

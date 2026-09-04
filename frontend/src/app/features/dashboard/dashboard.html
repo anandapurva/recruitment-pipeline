@@ -1,1 +1,271 @@
-<p>dashboard works!</p>
+<div class="dashboard-page">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Dashboard</h1>
+
+      <p>
+        Overview of your recruitment pipeline.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading dashboard...
+  </div>
+
+
+  <div
+    *ngIf="!loading && dashboard"
+    class="dashboard-content"
+  >
+
+
+    <!-- ===================== -->
+    <!-- SUMMARY CARDS -->
+    <!-- ===================== -->
+
+    <div class="summary-grid">
+
+
+      <div class="summary-card">
+
+        <div class="card-icon">
+          💼
+        </div>
+
+        <div>
+
+          <span class="card-label">
+            Open Positions
+          </span>
+
+          <strong>
+            {{ dashboard.summary.openPositions }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <div class="card-icon">
+          👥
+        </div>
+
+        <div>
+
+          <span class="card-label">
+            Active Applications
+          </span>
+
+          <strong>
+            {{ dashboard.summary.activeApplications }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <div class="card-icon">
+          📅
+        </div>
+
+        <div>
+
+          <span class="card-label">
+            Interviews This Week
+          </span>
+
+          <strong>
+            {{ dashboard.summary.interviewsThisWeek }}
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <div class="card-icon">
+          🎉
+        </div>
+
+        <div>
+
+          <span class="card-label">
+            Hires This Month
+          </span>
+
+          <strong>
+            {{ dashboard.summary.hiresThisMonth }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+<!-- ========================= -->
+<!-- APPLICATIONS BY JOB -->
+<!-- ========================= -->
+
+<div class="analytics-card">
+
+  <div class="section-header">
+
+    <div>
+
+      <h2>
+        Applications by Job
+      </h2>
+
+      <p>
+        Number of candidates for each job opening.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="chart-container">
+
+    <canvas
+      id="applicationsByJobChart"
+    ></canvas>
+
+  </div>
+
+
+  <div
+    *ngIf="
+      dashboard.applicationsByJob.length === 0
+    "
+    class="empty-state"
+  >
+
+    No application data available.
+
+  </div>
+
+</div>
+
+
+
+<!-- ========================= -->
+<!-- STAGE + WEEKLY ANALYTICS -->
+<!-- ========================= -->
+
+<div class="analytics-grid">
+
+
+  <!-- APPLICATIONS BY STAGE -->
+
+  <div class="analytics-card">
+
+    <div class="section-header">
+
+      <h2>
+        Applications by Stage
+      </h2>
+
+      <p>
+        Current distribution of candidates.
+      </p>
+
+    </div>
+
+
+    <div class="chart-container doughnut-container">
+
+      <canvas
+        id="applicationsByStageChart"
+      ></canvas>
+
+    </div>
+
+
+    <div
+      *ngIf="
+        dashboard.applicationsByStage.length === 0
+      "
+      class="empty-state"
+    >
+
+      No stage data available.
+
+    </div>
+
+  </div>
+
+
+
+  <!-- APPLICATIONS OVER TIME -->
+
+  <div class="analytics-card">
+
+    <div class="section-header">
+
+      <h2>
+        Applications Over Time
+      </h2>
+
+      <p>
+        Applications received over the last 3 months.
+      </p>
+
+    </div>
+
+
+    <div class="chart-container">
+
+      <canvas
+        id="applicationsPerWeekChart"
+      ></canvas>
+
+    </div>
+
+
+    <div
+      *ngIf="
+        dashboard.applicationsPerWeek.length === 0
+      "
+      class="empty-state"
+    >
+
+      No application data available.
+
+    </div>
+
+  </div>
+
+</div>
+ 
+
+
+  </div>
+
+</div>

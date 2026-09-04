@@ -1,11 +1,19 @@
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
 
   display: flex;
   flex-direction: column;
 
   border-right: 1px solid #ddd;
+
+  overflow-y: auto;
+
+  z-index: 1000;
 }
 
 .brand {
@@ -86,4 +94,14 @@ nav a.active {
     justify-content: center;
   }
 
+   .main-content {
+    margin-left: 72px;
+  }
+
+}
+
+.main-content {
+  margin-left: 240px;
+  min-height: 100vh;
+  width: calc(100% - 240px);
 }

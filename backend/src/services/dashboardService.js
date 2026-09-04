@@ -155,7 +155,7 @@ const getApplicationsPerWeek = async () => {
              week_start ASC`
     );
 
-    return rows;
+    return fillMissingWeeks(rows);
 };
 
 const fillMissingWeeks = (rows) => {
