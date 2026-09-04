@@ -14,10 +14,14 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const stalledAlertRoutes = require("./routes/stalledAlertRoutes");
 
 const app = express();
+console.log("=================================");
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("=================================");
 
 app.use(
     cors({
-        origin: "http://localhost:4200"
+        origin: process.env.FRONTEND_URL || "http://localhost:4200"
     })
 );
 app.use(express.json());
