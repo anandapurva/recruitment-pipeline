@@ -1,60 +1,116 @@
 # Architecture Decisions
 
-## JWT-based authentication
+This document records the major technical and product decisions made while building the Hiring Pipeline application. Each decision describes the chosen approach, alternatives considered, the reason for the choice, and the resulting consequences.
 
-### Chosen
-JWT authentication with bcrypt password hashing.
-
-### Rejected
-Session-based authentication.
-
-### Why
-The application has a separate Angular frontend and Node.js API. JWT allows
-the API to remain stateless and makes authentication straightforward between
-the deployed frontend and backend.
+The decisions below reflect the final implementation of the completed project.
 
 ---
 
-## Server-side role authorization
+## 1. JWT-Based Authentication
 
-### Chosen
-Role checks are enforced using Express middleware.
+**Status:** Accepted
 
-### Rejected
-Relying only on Angular route guards.
+### Context
 
-### Why
-Angular guards only protect the user interface. A user could bypass the
-frontend and directly call the API. Since the requirements explicitly state
-that recruiter/interviewer permissions must be enforced on the server,
-authorization is implemented in the backend.
-
-## Pipeline transitions are enforced by the backend
+The application has a separate Angular frontend and Node.js/Express backend. Authentication must work across protected API requests while keeping the backend straightforward to deploy.
 
 ### Chosen
 
-Pipeline transitions are handled by a central application service rather than
-allowing the client to directly update the stage field.
+Use JWT-based authentication with bcrypt password hashing.
 
 ### Rejected
 
-Allowing the frontend to send any arbitrary stage through a generic update API.
+Session-based authentication.
 
 ### Why
 
-The requirement prohibits skipping stages. Backend enforcement prevents a
-client from bypassing the Angular interface and directly modifying an
-application's stage.
+JWT works naturally with a separate frontend and REST API. The backend can authenticate each request using the token without maintaining server-side session state.
 
-The service calculates the only legal next stage and records every transition
-in application_history.
+Passwords are never stored in plain text; bcrypt is used for password hashing.
 
-## Rejection stores the previous stage
+### Consequences
+
+* Authentication is stateless on the API side.
+* The Angular application sends the JWT with protected requests.
+* JWT expiration and invalid tokens must be handled by the authentication middleware.
+* Password verification is performed using bcrypt.
+
+---
+
+## 2. Server-Side Role Authorization
+
+**Status:** Accepted
+
+### Context
+
+The system has two roles: recruiters and interviewers. The assignment explicitly requires permissions to be enforced on the server.
 
 ### Chosen
 
-Store the stage from which an application was rejected in
-`rejected_from_stage`.
+Use Express middleware to authenticate the user and enforce the required role for protected endpoints.
+
+### Rejected
+
+Relying only on Angular route guards or hiding UI elements.
+
+### Why
+
+Frontend restrictions can be bypassed by directly calling the API. Server-side authorization ensures that an interviewer cannot access recruiter-only operations even if they manually construct an HTTP request.
+
+### Consequences
+
+* Recruiter-only endpoints use recruiter role middleware.
+* Interviewer endpoints verify the interviewer role.
+* Angular route guards improve the user experience but are not treated as the security boundary.
+
+---
+
+## 3. Pipeline Transitions Are Enforced by the Backend
+
+**Status:** Accepted
+
+### Context
+
+Applications must move through the pipeline one stage at a time:
+
+`Applied → Screening → Interview → Offer → Hired`
+
+Skipping a stage must be rejected by the server.
+
+### Chosen
+
+Centralize pipeline transition rules in the backend application service.
+
+### Rejected
+
+Allowing the Angular client to send any arbitrary value for the application's stage.
+
+### Why
+
+The frontend cannot be trusted to enforce business rules. A client could bypass the interface and send an invalid stage directly to the API.
+
+The backend calculates the legal next stage and rejects invalid transitions.
+
+### Consequences
+
+* Applications can only advance one stage at a time.
+* Hired applications cannot advance further.
+* Rejected applications cannot be advanced until reinstated.
+* Every valid transition is recorded in application history.
+
+---
+
+## 4. Rejected Applications Preserve Their Previous Stage
+
+**Status:** Accepted
+
+### Context
+
+A rejected application must remain in the system and must be restorable to the exact stage from which it was rejected.
+
+### Chosen
+
+Store the previous stage in `rejected_from_stage`.
 
 ### Rejected
 
@@ -62,10 +118,29 @@ Resetting a rejected application to `Applied` during reinstatement.
 
 ### Why
 
-The requirements explicitly state that reinstatement must return the
-application to the exact stage from which it was rejected.
+Resetting to `Applied` would lose important pipeline information. The requirement explicitly states that reinstatement must return the application to the stage from which it was rejected.
 
-## Many-to-many interviewer panel
+### Consequences
+
+For example:
+
+`Interview → Rejected → Interview`
+
+rather than:
+
+`Interview → Rejected → Applied`
+
+The rejection itself is also recorded in application history.
+
+---
+
+## 5. Many-to-Many Interviewer Panel
+
+**Status:** Accepted
+
+### Context
+
+An application can have multiple interviewers, while one interviewer can participate in many applications across different job openings.
 
 ### Chosen
 
@@ -73,196 +148,419 @@ Use an `application_interviewers` junction table.
 
 ### Rejected
 
-Store one interviewer ID directly on the application.
+Store a single `interviewer_id` directly on the `applications` table.
 
 ### Why
 
-An application can have any number of interviewers and an interviewer can
-participate in applications across multiple job openings. This is a
-many-to-many relationship, so a junction table is the normalized design.
+The relationship is many-to-many. A junction table represents the relationship without limiting the number of interviewers assigned to an application.
 
-## Feedback stored as immutable history events
+### Consequences
+
+* One application can have any number of interviewers.
+* One interviewer can be assigned to any number of applications.
+* Interviewer application lists can be generated from the junction table.
+* Only users with the interviewer role can be assigned.
+
+---
+
+## 6. Server-Side Candidate Search
+
+**Status:** Accepted
+
+### Context
+
+Recruiters need to search across applications using candidate name/email, job opening, stage and source, while also supporting sorting and pagination.
 
 ### Chosen
 
-Store interviewer feedback as `FEEDBACK_ADDED` events in
-`application_history`.
+Perform searching, filtering, sorting and pagination in Node.js/MySQL.
 
 ### Rejected
 
-Store feedback in a mutable feedback column on the application or allow
-feedback records to be edited/deleted.
+Loading every application into Angular and filtering it in the browser.
 
 ### Why
 
-The requirements state that feedback is part of the application timeline and
-that timeline records cannot be edited or deleted. Storing feedback as
-append-only history events preserves the audit trail.
+The assignment explicitly requires server-side processing. It also avoids transferring unnecessary records to the browser and provides a better path for scaling.
 
-## Server-side application search
+### Consequences
+
+The API accepts search and filtering parameters and returns only the requested page of results together with pagination information such as total matches.
+
+Dynamic sorting is restricted to a whitelist of permitted database columns rather than directly interpolating user-provided SQL.
+
+---
+
+## 7. Bulk Actions Allow Partial Success
+
+**Status:** Accepted
+
+### Context
+
+A recruiter can select multiple applications and bulk-advance or bulk-reject them. Some applications may be eligible while others may not be.
 
 ### Chosen
 
-Search, filtering, sorting and pagination are performed by the Node API and
-MySQL rather than loading all applications into Angular.
+Process each application independently and return separate `succeeded` and `failed` results.
 
 ### Rejected
 
-Loading all applications into the browser and filtering them with JavaScript.
+Fail the entire batch when one application is invalid.
 
 ### Why
 
-The requirements explicitly require server-side processing. It also reduces
-browser memory usage and network transfer and provides a path to scaling the
-application.
+The requirement explicitly requires per-candidate reporting.
 
-## Bulk operations are partially successful
+For example, if five applications are selected and one is already Hired, the other four should still be processed if they are valid.
+
+### Consequences
+
+The API returns information such as:
+
+* application ID
+* previous stage
+* new stage
+* failure reason when applicable
+
+This allows Angular to show the recruiter exactly which applications succeeded and which were refused.
+
+---
+
+## 8. Pipeline CSV Contains the Active Pipeline
+
+**Status:** Accepted
+
+### Context
+
+Recruiters need to export a snapshot of the current pipeline.
 
 ### Chosen
 
-Each application in a bulk request is processed independently. The response
-contains separate succeeded and failed arrays, with the reason for every
-failure.
+Export applications currently in the active pipeline stages:
+
+* Applied
+* Screening
+* Interview
+* Offer
+
+The CSV contains the application's current stage and relevant candidate/job information.
 
 ### Rejected
 
-Wrapping the entire batch in one transaction and rolling back everything when
-one application is invalid.
+Including Hired and Rejected applications in the active pipeline export.
 
 ### Why
 
-The requirements explicitly require per-candidate success/failure reporting.
-One invalid candidate should not prevent valid candidates from being processed.
+Hired and Rejected are terminal states and are no longer part of the open pipeline.
 
-## Pipeline CSV definition
+### Consequences
 
-### Chosen
+Archiving a job opening does not delete its applications. Historical application data remains available even when the associated opening is archived.
 
-The CSV contains active applications in Applied, Screening, Interview and
-Offer stages. Hired and Rejected applications are excluded because they are
-terminal and no longer part of the open pipeline.
+---
 
-Applications belonging to archived job openings are retained if the
-application itself is still active.
+## 9. Global Dashboard Is Recruiter-Only
 
-### Why
+**Status:** Accepted
 
-Archiving an opening must hide the opening without destroying its applications.
+### Context
 
-## Global dashboard access
+The dashboard contains aggregate information across job openings, including open positions, applications, interviews and hires.
 
 ### Chosen
 
-The global dashboard is restricted to recruiters.
+Restrict the global dashboard to recruiters.
 
 ### Rejected
 
-Allowing interviewers to see the same dashboard as recruiters.
+Allowing interviewers to access the same global dashboard.
 
 ### Why
 
-The dashboard contains aggregate information across job openings. The
-requirements restrict interviewers to applications assigned to them and
-prevent them from seeing other openings' pipelines. A global dashboard would
-leak information about candidates and hiring activity outside their assigned
-applications.
+Interviewers are only supposed to see applications assigned to them. A global dashboard could reveal information about candidates and hiring activity outside their assigned applications.
 
-## Interview scheduling
+### Consequences
+
+The dashboard endpoint is protected by authentication and recruiter-role authorization.
+
+---
+
+## 10. Separate Interviews Table
+
+**Status:** Accepted
+
+### Context
+
+Applications may have multiple interview rounds, and the dashboard needs to count scheduled interviews.
 
 ### Chosen
 
-Use a separate interviews table with a one-to-many relationship from
-applications.
+Use a separate `interviews` table with a one-to-many relationship from applications.
 
 ### Rejected
 
-Store a single interview date directly on applications.
+Store a single interview date directly on the `applications` table.
 
 ### Why
 
-An application can have multiple interview rounds, and the dashboard needs to
-count scheduled interviews. A separate table models this naturally and
-allows future interview-related fields without modifying the application
-record.
+A single application may have multiple interviews. A separate table supports multiple interview records and leaves room for interview-specific information such as duration, location and notes.
 
-## Stalled alerts are generated lazily
+### Consequences
+
+One application can have multiple interview records, and one user can create multiple interviews.
+
+---
+
+## 11. Stalled Alerts Are Generated Lazily
+
+**Status:** Accepted
+
+### Context
+
+An application should appear as stalled after remaining in the same active stage for more than ten days.
 
 ### Chosen
 
-Stalled alerts are created when the recruiter requests the stalled-alert list
-or count. The application determines whether a stage has exceeded ten days
-using stage_started_at.
+Generate missing stalled-alert records when the recruiter requests the alert list or alert count.
+
+The application's `stage_started_at` timestamp determines whether it has exceeded the ten-day threshold.
 
 ### Rejected
 
-A continuously running background worker for alert creation.
+Running a continuously active background worker solely to create stalled-alert records.
 
 ### Why
 
-The assignment can determine staleness directly from stored timestamps, so a
-background process is unnecessary for correctness. Lazy generation also keeps
-the free-tier deployment simpler and avoids maintaining an additional worker.
-A database unique constraint prevents duplicate alerts.
+The system can determine whether an application is stalled directly from its stored timestamp. A background worker is therefore not required for correctness.
 
-## Alert dismissal is tied to a stage instance
+Lazy generation also keeps the deployment simpler.
+
+### Consequences
+
+* No separate worker process is required.
+* Alerts are created when they are needed.
+* A database uniqueness constraint prevents duplicate alerts for the same stage instance.
+
+---
+
+## 12. Alert Dismissal Is Tied to a Stage Instance
+
+**Status:** Accepted
+
+### Context
+
+A recruiter can dismiss a stalled alert. However, if the application later advances and becomes stalled in its new stage, the alert must appear again.
 
 ### Chosen
 
-A stalled alert stores application_id, stage and stage_started_at. Dismissing
-an alert only dismisses that particular instance of the application being in
-that stage.
+Identify an alert using:
+
+* `application_id`
+* `stage`
+* `stage_started_at`
 
 ### Rejected
 
-A permanent dismissed flag on the application.
+Adding a permanent `dismissed` flag directly to the application.
 
 ### Why
 
-An application must receive a new alert if it advances to another stage and
-later becomes stalled again. Tying dismissal to stage_started_at naturally
-resets the alert state whenever the candidate enters a new stage.
+A permanent application-level dismissal would incorrectly prevent future stalled alerts.
 
-## Decision: Use status for archiving
+For example:
+
+`Applied → stalled → dismissed`
+
+should not prevent:
+
+`Applied → Screening → stalled`
+
+from generating another alert.
+
+### Consequences
+
+Each period spent in a stage is treated as a separate stage instance.
+
+When the application advances, its `stage_started_at` changes. A future stalled alert therefore represents a new stage instance.
+
+---
+
+## 13. Job Archiving Uses the Existing Status Field
+
+**Status:** Accepted
+
+### Context
+
+Job openings need to support open, closed and archived states.
 
 ### Chosen
-Use the existing `job_openings.status` ENUM with:
-- open
-- closed
-- archived
+
+Use the existing `job_openings.status` ENUM:
+
+* `open`
+* `closed`
+* `archived`
 
 ### Rejected
-Adding a separate `is_archived` BOOLEAN column.
+
+Adding a separate `is_archived` boolean column.
 
 ### Why
-The existing database schema already models archived as a valid
-state, so adding another column would duplicate state information.
-Using one status field keeps the current schema simpler.
+
+A separate archive flag would duplicate information already represented by the status field.
+
+Using one status value keeps the job state in a single database column.
+
+### Consequences
+
+Archiving changes the status to `archived`.
+
+Restoring an archived job changes it back to `closed` rather than automatically reopening the position.
+
+---
+
+## 14. Applications Belong to Exactly One Job Opening
+
+**Status:** Accepted
+
+### Context
+
+The specification states that every application belongs to exactly one job opening.
+
+### Chosen
+
+Store the job-opening relationship as a foreign key in `applications`.
+
+### Rejected
+
+Allowing a single application record to belong to multiple job openings.
+
+### Why
+
+The pipeline, stage, history and application data are specific to a particular job opening.
+
+### Consequences
+
+A candidate applying for two different positions has two application records.
+
+The database foreign key maintains referential integrity and prevents orphaned applications.
+
+---
+
+## 15. Feedback Is Stored as Immutable History
+
+**Status:** Accepted
+
+### Context
+
+Interviewer feedback must become part of the application's timeline and cannot be edited or deleted after being recorded.
+
+### Chosen
+
+Store feedback as append-only `FEEDBACK_ADDED` events in `application_history`.
+
+### Rejected
+
+Storing feedback in a mutable column on the application or allowing feedback records to be edited/deleted.
+
+### Why
+
+The history requirement is audit-oriented. Append-only events preserve what was recorded and when it was recorded.
+
+### Consequences
+
+The application timeline can show:
+
+* application creation
+* stage changes
+* rejection
+* reinstatement
+* interviewer feedback
+
+Existing history records are not modified or deleted by normal application operations.
+
+---
+
+## 16. Application History Is Append-Only
+
+**Status:** Accepted
+
+### Context
+
+The assignment requires a timeline that cannot be rewritten.
+
+### Chosen
+
+Treat `application_history` as an append-only audit log.
+
+### Rejected
+
+Allowing recruiters to edit or delete historical events.
+
+### Why
+
+Changing historical events would undermine the audit trail and make it impossible to determine what actually happened during the hiring process.
+
+### Consequences
+
+New events are appended whenever a relevant action occurs, while previous events remain unchanged.
+
+---
+
+## 17. Initial Design Reversed: Generic Stage Updates Were Replaced by Explicit Transitions
+
+**Status:** Superseded
+
+### Initial decision
+
+During the early implementation, the application update flow allowed the application stage to be treated as a normal editable field.
+
+### Why it was initially chosen
+
+It was simple to implement and fit the generic application update API.
+
+### Problem discovered
+
+This approach made it possible for a client to potentially request an invalid transition such as:
+
+`Screening → Offer`
+
+It also made it harder to guarantee consistent history recording for every stage change.
+
+### Reversed decision
+
+The generic stage-update approach was replaced with explicit pipeline transition operations in the backend service.
+
+The service now determines the legal next stage instead of trusting a stage supplied by the client.
+
+### Why the new approach was chosen
+
+The assignment requires strict sequential transitions and server-side enforcement.
+
+Centralizing transition rules makes the state machine explicit and ensures that history is recorded consistently.
 
 ### Consequence
-Archive and restore operations must explicitly change the status.
-Restoring an archived opening returns it to `closed` rather than
-automatically reopening the position.
 
-## Decision: Applications belong to a single job opening
+The application update flow can modify ordinary application information, while stage changes go through dedicated transition logic.
 
-### Chosen
+---
 
-Each application contains a `job_id` foreign key referencing
-`job_openings.id`.
+## Final Decision Summary
 
-### Rejected
+The completed application therefore uses:
 
-Allowing one application record to represent applications to
-multiple jobs.
+* Angular for the recruiter and interviewer interfaces.
+* Node.js/Express for the REST API and business rules.
+* MySQL for persistent data and relational constraints.
+* JWT and bcrypt for authentication.
+* Server-side role authorization.
+* A backend-enforced pipeline state machine.
+* A many-to-many interviewer assignment model.
+* Server-side search, filtering, sorting and pagination.
+* Append-only application history.
+* Partial-success bulk operations.
+* CSV pipeline export.
+* Aggregate recruiter dashboard analytics.
+* Lazy, stage-instance-based stalled alerts.
 
-### Why
-
-The specification states that every application belongs to
-exactly one job opening. A foreign key directly represents this
-relationship and allows the database to enforce it.
-
-### Consequence
-
-A candidate who applies to two different positions will have
-two application records. This preserves the job-specific
-pipeline and history.
+These decisions prioritize correctness of the recruitment workflow, server-side enforcement of business rules, auditability, and a relatively simple deployment architecture suitable for the scope of the assignment.

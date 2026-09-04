@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive} from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { NavigationItem } from '../../../core/models/navigation';
-
+import { StalledAlertService } from '../../../core/services/stalled-alert';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,11 +21,26 @@ import { NavigationItem } from '../../../core/models/navigation';
 
 export class Sidebar {
 
+   stalledAlertCount = 0;
+
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private stalledAlertService: StalledAlertService
   ) {}
 
+  ngOnInit(): void {
+
+    const user =
+      this.authService.getUser();
+
+    if (user?.role === 'recruiter') {
+
+      this.loadAlertCount();
+
+    }
+
+  }
 
   readonly recruiterItems:
     NavigationItem[] = [
@@ -85,6 +100,41 @@ export class Sidebar {
       return this.recruiterItems;
     }
     return this.interviewerItems;
+  }
+
+  loadAlertCount(): void {
+
+    const user =
+      this.authService.getUser();
+
+    if (user?.role !== 'recruiter') {
+      return;
+    }
+
+    this.stalledAlertService
+      .getCount()
+      .subscribe({
+
+        next: response => {
+
+          this.stalledAlertCount =
+            response.count || 0;
+
+        },
+
+        error: error => {
+
+          console.error(
+            'ALERT COUNT ERROR:',
+            error
+          );
+
+          this.stalledAlertCount = 0;
+
+        }
+
+      });
+
   }
 
 

@@ -28,6 +28,15 @@
         {{ item.label }}
       </span>
 
+          <!-- Stalled alert count -->
+
+      <span
+        *ngIf="item.label === 'Alerts' && stalledAlertCount > 0"
+        class="alert-count"
+      >
+        {{ stalledAlertCount }}
+      </span>
+
     </a>
 
   </nav>

@@ -1,1 +1,144 @@
-<p>alerts works!</p>
+<div class="alerts-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Alerts
+      </h1>
+
+      <p>
+        Applications that have remained in the same stage
+        for more than 10 days.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading alerts...
+  </div>
+
+
+  <div
+    *ngIf="!loading"
+    class="alerts-list"
+  >
+
+    <div
+      *ngFor="let alert of alerts"
+      class="alert-card"
+    >
+
+      <div class="alert-main">
+
+        <div>
+
+          <h2>
+            {{ alert.candidate_name }}
+          </h2>
+
+          <p>
+            {{ alert.candidate_email }}
+          </p>
+
+        </div>
+
+        <span class="alert-badge">
+          Stalled
+        </span>
+
+      </div>
+
+
+      <div class="alert-details">
+
+        <div>
+
+          <span class="label">
+            Job
+          </span>
+
+          <span>
+            {{ alert.job_title }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Current Stage
+          </span>
+
+          <span>
+            {{ alert.stage }}
+          </span>
+
+        </div>
+
+
+        <div>
+
+          <span class="label">
+            Stage Started
+          </span>
+
+          <span>
+            {{ alert.stage_started_at | date:'mediumDate' }}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="alert-actions">
+
+        <button
+          type="button"
+          class="dismiss-button"
+          (click)="dismissAlert(alert)"
+        >
+          Dismiss
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div
+      *ngIf="alerts.length === 0"
+      class="empty-state"
+    >
+
+      <h2>
+        No stalled applications
+      </h2>
+
+      <p>
+        You're all caught up. No applications have been
+        stalled for more than 10 days.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

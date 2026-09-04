@@ -1,124 +1,242 @@
-## job_openings
+# Database Schema
 
-Stores all recruitment positions.
+## 1. Overview
 
-| Column | Type | Description |
-|---|---|---|
-| id | INT | Primary key |
-| title | VARCHAR(150) | Job title |
-| department | VARCHAR(100) | Department |
-| description | TEXT | Job description |
-| status | ENUM | open, closed, archived |
-| created_at | TIMESTAMP | Creation time |
-| updated_at | TIMESTAMP | Last modification |
+The application uses MySQL as its relational database.
 
-### Relationship
+The main entities are:
 
-One job opening has many applications.
+users
+jobs
+applications
+application_history
+application_interviewers
+interviews
+stalled_alerts
 
-`job_openings.id → applications.job_opening_id`
+The schema uses foreign keys for important relationships and application-level validation for business rules.
 
-Applications are not deleted when a job opening is archived.
+---
 
-### Database vs application constraints
-
-Database:
-- Primary key
-- Foreign key
-- NOT NULL constraints
-- Status ENUM
-
-Application:
-- Only recruiters may create/edit/archive/restore openings.
-- Archived openings are excluded from default listing.
-- Only archived openings can be restored.
-
-## Scaling considerations
-
-Candidate name and email currently use substring matching with LIKE '%term%'.
-At significantly larger data volumes, this would become a search bottleneck
-because conventional indexes cannot efficiently optimize a leading wildcard.
-
-A future implementation could use MySQL full-text indexes, a dedicated search
-engine, or another search-oriented data store depending on scale and search
-requirements.
-
-## Indexes
-
-Applications have indexes on:
-
-- job_opening_id
-- stage
-- source
-- applied_at
-- updated_at
-
-application_interviewers has an index on interviewer_id.
-
-These indexes support the most common filtering, sorting and authorization
-queries.
-
-## interviews
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INT | PK, AUTO_INCREMENT |
-| application_id | INT | FK, NOT NULL |
-| scheduled_at | DATETIME | NOT NULL |
-| duration_minutes | INT | DEFAULT 60 |
-| location | VARCHAR(255) | nullable |
-| notes | TEXT | nullable |
-| created_by | INT | FK, NOT NULL |
-| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP |
-
-An application has a one-to-many relationship with interviews.
-A user can create many interviews.
-
-## stalled_alerts
-
-| Column | Type | Constraints |
-|---|---|---|
-| id | INT | PK, AUTO_INCREMENT |
-| application_id | INT | FK, NOT NULL |
-| stage | VARCHAR(50) | NOT NULL |
-| stage_started_at | DATETIME | NOT NULL |
-| dismissed_at | DATETIME | nullable |
-| dismissed_by | INT | FK, nullable |
-| created_at | DATETIME | DEFAULT CURRENT_TIMESTAMP |
-
-An application can have many stalled alert records over its lifetime.
-Each alert represents one stage instance.
-
-A unique constraint on
-(application_id, stage, stage_started_at) prevents duplicate alerts for
-the same stage instance.
-
-## applications
+## 2. users
 
 | Column | Type | Nullable | Constraints |
 |---|---|---|---|
-| id | INT | No | Primary key, auto increment |
-| job_id | INT | No | Foreign key to job_openings.id |
-| candidate_name | VARCHAR(150) | No | Required |
-| candidate_email | VARCHAR(255) | No | Required |
-| source | VARCHAR(100) | Yes | Optional |
-| notes | TEXT | Yes | Optional |
-| stage | ENUM | No | Pipeline stage |
-| created_at | TIMESTAMP | No | Creation timestamp |
-| updated_at | TIMESTAMP | No | Last update timestamp |
+| id | INT | No | PK, AUTO_INCREMENT |
+| name | VARCHAR(...) | No | Required |
+| email | VARCHAR(...) | No | Unique, Required |
+| password | VARCHAR(...) | No | Required |
+| role | ENUM(...) | No | recruiter/interviewer |
+| created_at | TIMESTAMP/DATETIME | No | Default timestamp |
+
+### Relationships
+
+One user can:
+
+- create many interviews
+- create many history events
+- dismiss many stalled alerts
+
+A user does not directly own an application.
+
+---
+
+## 3. job_openings
+
+[Document the exact columns from your database.]
+
+Relationship:
+
+job_openings 1 → N applications
+
+A job opening can have many applications.
+
+An application belongs to exactly one job opening.
+
+---
+
+## 4. applications
+
+[Use the exact actual column names from MySQL.]
+
+Important fields include:
+
+- candidate identity
+- job opening
+- source
+- notes
+- current stage
+- stage start timestamp
+- creation/update timestamps
+- rejected-from-stage information where applicable
 
 ### Relationship
 
-One job opening can have many applications.
+job_openings 1 → N applications
 
-Each application belongs to exactly one job opening.
+applications 1 → N application_history
+
+applications N ↔ N users through application_interviewers
+
+applications 1 → N interviews
+
+applications 1 → N stalled_alerts
+
+---
+
+## 5. application_interviewers
+
+This is the junction table implementing the many-to-many interviewer panel.
+
+| Column | Type | Constraints |
+|---|---|---|
+| application_id | INT | FK |
+| interviewer_id | INT | FK |
+
+Relationship:
+
+applications N ↔ N users
+
+One application can have many interviewers.
+
+One interviewer can be assigned to many applications.
+
+A unique constraint prevents assigning the same interviewer to the same application twice.
+
+---
+
+## 6. application_history
+
+Stores the immutable application timeline.
+
+Events include:
+
+- APPLICATION_CREATED
+- STAGE_CHANGED
+- REJECTED
+- REINSTATED
+- FEEDBACK_ADDED
+
+History records contain the actor and event-specific information.
+
+History is append-only.
+
+There is deliberately no update/delete workflow for history.
+
+---
+
+## 7. interviews
+
+One application can have multiple interviews.
 
 Therefore:
 
-job_openings 1 ─────── N applications
+applications 1 → N interviews
 
-The relationship is enforced using the foreign key
-`applications.job_id -> job_openings.id`.
+This supports multiple interview rounds.
 
-`ON DELETE RESTRICT` prevents a job opening from being deleted
-while applications still reference it.
+---
+
+## 8. stalled_alerts
+
+Each record represents one stalled stage instance.
+
+The important uniqueness rule is:
+
+(application_id, stage, stage_started_at)
+
+This prevents duplicate alerts for the same stage instance.
+
+A later stage has a different `stage_started_at`, so it can produce a new alert.
+
+---
+
+# Relationships
+
+## One-to-many
+
+job_openings → applications
+
+applications → application_history
+
+applications → interviews
+
+applications → stalled_alerts
+
+users → interviews
+
+users → history events
+
+users → dismissed alerts
+
+## Many-to-many
+
+applications ↔ users/interviewers
+
+Implemented through:
+
+application_interviewers
+
+---
+
+# Database Constraints vs Application Constraints
+
+## Database
+
+The database enforces:
+
+- primary keys
+- foreign keys
+- NOT NULL constraints
+- unique constraints
+- ENUM values
+- duplicate interviewer assignment prevention
+- alert stage-instance uniqueness
+
+## Application
+
+The backend enforces:
+
+- recruiter/interviewer permissions
+- legal pipeline transitions
+- rejection/reinstatement rules
+- bulk-action eligibility
+- interviewer assignment role
+- server-side search parameter validation
+- alert dismissal validation
+- business-specific archive/restore behavior
+
+---
+
+# Deliberate Denormalisation
+
+The system intentionally keeps some frequently accessed values directly on applications, such as:
+
+- current stage
+- stage_started_at
+- rejected_from_stage
+
+This avoids reconstructing the current application state from the entire history every time the pipeline is displayed.
+
+The history table remains the audit trail.
+
+---
+
+# Scaling
+
+At 100x the current data volume, the first likely bottlenecks are:
+
+1. Candidate substring search using `LIKE '%term%'`.
+2. Large application-history queries.
+3. Dashboard aggregate queries over the full application table.
+4. CSV exports containing very large datasets.
+5. Increasing stalled-alert scans.
+
+Potential future improvements include:
+
+- full-text indexes
+- dedicated search infrastructure
+- additional composite indexes
+- cached dashboard aggregates
+- asynchronous CSV generation
+- scheduled alert processing

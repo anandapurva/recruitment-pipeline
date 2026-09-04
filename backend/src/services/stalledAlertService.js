@@ -58,13 +58,12 @@ const createMissingAlerts = async () => {
             a.stage,
             a.stage_started_at
 
-        FROM applications a
+        FROM applications AS a
 
-        LEFT JOIN stalled_alerts sa
+        LEFT JOIN stalled_alerts AS sa
             ON sa.application_id = a.id
             AND sa.stage = a.stage
-            AND sa.stage_started_at =
-                a.stage_started_at
+            AND sa.stage_started_at = a.stage_started_at
 
         WHERE a.stage IN (
             'Applied',
@@ -82,8 +81,7 @@ const createMissingAlerts = async () => {
         AND sa.id IS NULL
 
         ON DUPLICATE KEY UPDATE
-            application_id =
-                application_id
+            application_id = VALUES(application_id)
     `);
 };
 
@@ -226,5 +224,6 @@ module.exports = {
     getActiveAlerts,
     getActiveAlertCount,
     dismissAlert,
-    createMissingAlerts
+    createMissingAlerts,
+    getStalledApplications
 };
