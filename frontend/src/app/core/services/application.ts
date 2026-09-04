@@ -11,7 +11,9 @@ import {
   JobApplicationsResponse,
   Interviewer,
   InterviewersResponse,
-  InterviewPanelResponse
+  InterviewPanelResponse,
+  ApplicationSearchParams,
+  ApplicationSearchResponse
 } from '../models/application';
 
 
@@ -144,6 +146,126 @@ export class ApplicationService {
   getApplicationHistory(applicationId: number): Observable<any> {
   return this.api.get<any>(
     `/applications/${applicationId}/history`
+  );
+
+}
+
+exportPipeline(): Observable<Blob> {
+
+  return this.api.getBlob(
+    '/applications/export'
+  );
+
+}
+
+searchApplications(
+  params: ApplicationSearchParams
+): Observable<ApplicationSearchResponse> {
+
+  const queryParams: string[] = [];
+
+
+  if (params.search) {
+
+    queryParams.push(
+      `search=${encodeURIComponent(params.search)}`
+    );
+
+  }
+
+
+  if (params.jobId) {
+
+    queryParams.push(
+      `jobId=${params.jobId}`
+    );
+
+  }
+
+
+  if (params.stage) {
+
+    queryParams.push(
+      `stage=${encodeURIComponent(params.stage)}`
+    );
+
+  }
+
+
+  if (params.source) {
+
+    queryParams.push(
+      `source=${encodeURIComponent(params.source)}`
+    );
+
+  }
+
+
+  if (params.sortBy) {
+
+    queryParams.push(
+      `sortBy=${params.sortBy}`
+    );
+
+  }
+
+
+  if (params.sortOrder) {
+
+    queryParams.push(
+      `sortOrder=${params.sortOrder}`
+    );
+
+  }
+
+
+  if (params.page) {
+
+    queryParams.push(
+      `page=${params.page}`
+    );
+
+  }
+
+
+  if (params.limit) {
+
+    queryParams.push(
+      `limit=${params.limit}`
+    );
+
+  }
+
+
+  const queryString =
+    queryParams.length > 0
+      ? `?${queryParams.join('&')}`
+      : '';
+
+
+  return this.api.get<ApplicationSearchResponse>(
+    `/applications${queryString}`
+  );
+
+}
+
+bulkAdvance(applicationIds: number[]): Observable<any> {
+  return this.api.post<any>(
+    '/applications/bulk/advance',
+    {
+      applicationIds
+    }
+  );
+
+}
+
+
+bulkReject(applicationIds: number[]): Observable<any> {
+  return this.api.post<any>(
+    '/applications/bulk/reject',
+    {
+      applicationIds
+    }
   );
 
 }

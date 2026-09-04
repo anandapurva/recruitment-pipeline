@@ -60,4 +60,15 @@ export class ApiService {
 
   }
 
+  getBlob(url: string): Observable<Blob> {
+
+  return this.http.get(
+    `${this.BASE_URL}${url}`,
+    {
+      responseType: 'blob'
+    }
+  );
+
+}
+
 }

@@ -14,11 +14,12 @@ import { InterviewerLayout } from './layouts/interviewer-layout/interviewer-layo
 // Recruiter features
 import { Dashboard } from './features/dashboard/dashboard';
 import { Jobs } from './features/jobs/jobs';
+// For job specific applications
 import { Applications } from './features/applications/applications';
 import { Alerts } from './features/alerts/alerts';
 import { Pipeline } from './features/pipeline/pipeline';
-
-
+import { CandidateSearch } from './features/candidate-search/candidate-search';
+import { RecruiterApplications } from './features/recruiter-applications/recruiter-applications';
 import { InterviewerApplications } from './features/interviewer-applications/interviewer-applications';
 
 export const routes: Routes = [
@@ -94,7 +95,12 @@ export const routes: Routes = [
 
   {
     path: 'applications',
-    component: Applications
+    component: RecruiterApplications
+  },
+
+  {
+  path: 'candidates',
+  component: CandidateSearch
   },
 
   {

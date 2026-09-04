@@ -330,127 +330,124 @@ export class Pipeline implements OnInit {
 
 }
 
-loadAvailableInterviewers(): void {
+  loadAvailableInterviewers(): void {
 
-  this.applicationService
-    .getInterviewers()
-    .subscribe({
+    this.applicationService
+      .getInterviewers()
+      .subscribe({
 
-      next: response => {
+        next: response => {
 
-        this.availableInterviewers =
-          response.interviewers;
+          this.availableInterviewers =
+            response.interviewers;
 
-        this.panelLoading = false;
-        this.cdr.detectChanges();
+          this.panelLoading = false;
+          this.cdr.detectChanges();
 
-      },
+        },
 
-      error: error => {
+        error: error => {
 
-        console.error(error);
+          console.error(error);
 
-        this.panelError =
-          error?.error?.message ||
-          'Unable to load interviewers.';
+          this.panelError =
+            error?.error?.message ||
+            'Unable to load interviewers.';
 
-        this.panelLoading = false;
+          this.panelLoading = false;
 
-      }
+        }
 
-    });
+      });
 
-}
-
-assignInterviewer(): void {
-
-  if (
-    !this.panelApplication ||
-    this.selectedInterviewerId === null
-  ) {
-    return;
   }
 
-  this.panelError = '';
+  assignInterviewer(): void {
 
-  this.applicationService
-    .assignInterviewer(
-      this.panelApplication.id,
-      this.selectedInterviewerId
-    )
-    .subscribe({
+    if (
+      !this.panelApplication ||
+      this.selectedInterviewerId === null
+    ) {
+      return;
+    }
 
-      next: () => {
+    this.panelError = '';
 
-        this.openPanel(
-          this.panelApplication!
-        );
+    this.applicationService
+      .assignInterviewer(
+        this.panelApplication.id,
+        this.selectedInterviewerId
+      )
+      .subscribe({
 
-      },
+        next: () => {
 
-      error: error => {
+          this.openPanel(
+            this.panelApplication!
+          );
 
-        console.error(error);
+        },
 
-        this.panelError =
-          error?.error?.message ||
-          'Unable to assign interviewer.';
+        error: error => {
 
-      }
+          console.error(error);
 
-    });
+          this.panelError =
+            error?.error?.message ||
+            'Unable to assign interviewer.';
 
-}
+        }
 
-removeInterviewer(
-  interviewer: Interviewer
-): void {
+      });
 
-  if (!this.panelApplication) {
-    return;
   }
 
-  this.applicationService
-    .removeInterviewer(
-      this.panelApplication.id,
-      interviewer.id
-    )
-    .subscribe({
+  removeInterviewer(interviewer: Interviewer): void {
+    if (!this.panelApplication) {
+      return;
+    }
 
-      next: () => {
+    this.applicationService
+      .removeInterviewer(
+        this.panelApplication.id,
+        interviewer.id
+      )
+      .subscribe({
 
-        this.openPanel(
-          this.panelApplication!
-        );
+        next: () => {
 
-      },
+          this.openPanel(
+            this.panelApplication!
+          );
 
-      error: error => {
+        },
 
-        console.error(error);
+        error: error => {
 
-        this.panelError =
-          error?.error?.message ||
-          'Unable to remove interviewer.';
+          console.error(error);
 
-      }
+          this.panelError =
+            error?.error?.message ||
+            'Unable to remove interviewer.';
 
-    });
+        }
 
-}
+      });
 
-closePanel(): void {
+  }
 
-  this.panelApplication = null;
+  closePanel(): void {
 
-  this.panelInterviewers = [];
+    this.panelApplication = null;
 
-  this.availableInterviewers = [];
+    this.panelInterviewers = [];
 
-  this.selectedInterviewerId = null;
+    this.availableInterviewers = [];
 
-  this.panelError = '';
+    this.selectedInterviewerId = null;
 
-}
+    this.panelError = '';
+
+  }
 
 }

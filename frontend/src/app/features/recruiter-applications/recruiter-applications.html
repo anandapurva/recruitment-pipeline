@@ -1,0 +1,269 @@
+<div class="applications-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Applications
+      </h1>
+
+      <p>
+        View all candidate applications across your job openings.
+      </p>
+
+      
+
+    </div>
+
+      <button
+  type="button"
+  class="export-button"
+  (click)="exportPipeline()"
+>
+  Export CSV
+</button>
+
+  </div>
+
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+
+    {{ errorMessage }}
+
+  </div>
+
+  <div class="bulk-toolbar">
+
+  <label>
+
+    <input
+      type="checkbox"
+      [checked]="selectedIds.length === applications.length && applications.length > 0"
+      (change)="selectAll()"
+    />
+
+    Select All
+
+  </label>
+
+
+  <span>
+    {{ selectedIds.length }} selected
+  </span>
+
+
+  <div class="bulk-actions">
+
+    <button
+      type="button"
+      class="advance-button"
+      [disabled]="selectedIds.length === 0"
+      (click)="bulkAdvance()"
+    >
+      Bulk Advance
+    </button>
+
+
+    <button
+      type="button"
+      class="reject-button"
+      [disabled]="selectedIds.length === 0"
+      (click)="bulkReject()"
+    >
+      Bulk Reject
+    </button>
+
+  </div>
+
+</div>
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+
+    Loading applications...
+
+  </div>
+
+
+  <div
+    *ngIf="!loading"
+    class="results"
+  >
+
+    <div class="results-header">
+
+      <strong>
+        {{ total }} application(s)
+      </strong>
+
+    </div>
+
+
+    <div
+      *ngFor="let application of applications"
+      class="application-card"
+    >
+      <input
+        type="checkbox"
+        [checked]="isSelected(application.id)"
+        (change)="toggleSelection(application.id)"
+       />
+
+      <div class="candidate-info">
+
+        <h2>
+          {{ application.candidate_name }}
+        </h2>
+
+        <p>
+          {{ application.candidate_email }}
+        </p>
+
+      </div>
+
+
+      <div class="application-details">
+
+        <div class="detail">
+
+          <span class="label">
+            Job
+          </span>
+
+          <span>
+            {{ application.job_title || 'Not specified' }}
+          </span>
+
+        </div>
+
+
+        <div class="detail">
+
+          <span class="label">
+            Department
+          </span>
+
+          <span>
+            {{ application.job_department || 'Not specified' }}
+          </span>
+
+        </div>
+
+
+        <div class="detail">
+
+          <span class="label">
+            Stage
+          </span>
+
+          <span
+            class="stage"
+            [ngClass]="{
+              'stage-applied': application.stage === 'Applied',
+              'stage-screening': application.stage === 'Screening',
+              'stage-interview': application.stage === 'Interview',
+              'stage-offer': application.stage === 'Offer',
+              'stage-hired': application.stage === 'Hired',
+              'stage-rejected': application.stage === 'Rejected'
+            }"
+          >
+            {{ application.stage }}
+          </span>
+
+        </div>
+
+
+        <div class="detail">
+
+          <span class="label">
+            Source
+          </span>
+
+          <span>
+            {{ application.source || 'Not specified' }}
+          </span>
+
+        </div>
+
+
+        <div class="detail">
+
+          <span class="label">
+            Applied
+          </span>
+
+          <span>
+            {{ application.applied_at | date:'mediumDate' }}
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      *ngIf="applications.length === 0"
+      class="empty-state"
+    >
+
+      <h2>
+        No applications yet
+      </h2>
+
+      <p>
+        Applications will appear here when candidates are added to job openings.
+      </p>
+
+    </div>
+
+    <div
+  *ngIf="bulkResults.length > 0"
+  class="bulk-results"
+>
+
+  <h3>
+    Bulk Action Results
+  </h3>
+
+  <div
+    *ngFor="let result of bulkResults"
+    class="result-row"
+  >
+
+    <span>
+
+      Application ID:
+      {{ result.applicationId }}
+
+    </span>
+
+
+    <span
+      [ngClass]="result.success ? 'success' : 'failed'"
+    >
+
+      {{ result.success ? 'Success' : 'Failed' }}
+
+    </span>
+
+
+    <span>
+      {{ result.message }}
+    </span>
+
+  </div>
+
+</div>
+
+  </div>
+
+</div>

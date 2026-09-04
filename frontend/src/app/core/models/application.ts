@@ -10,28 +10,22 @@ export type ApplicationStage =
 export interface Application {
 
   id: number;
-
   job_id: number;
-
   candidate_name: string;
-
   candidate_email: string;
-
   source: string | null;
-
   notes: string | null;
-
   stage: ApplicationStage;
 
+  applied_at: string;
+  stage_changed_at: string;
+  stage_started_at?: string;
+
   created_at: string;
-
   updated_at: string;
-
+  
   job_title?: string;
-
   job_department?: string;
-
-  department?: string;
 
 }
 
@@ -130,5 +124,51 @@ export interface ApplicationHistory {
   created_at: string;
 
   performed_by_name?: string;
+
+}
+
+export interface ApplicationSearchParams {
+
+  search?: string;
+
+  jobId?: number;
+
+  stage?: ApplicationStage;
+
+  source?: string;
+
+  sortBy?:
+    | 'applied_at'
+    | 'stage'
+    | 'updated_at';
+
+  sortOrder?:
+    | 'asc'
+    | 'desc';
+
+  page?: number;
+
+  limit?: number;
+
+}
+
+
+export interface ApplicationSearchResponse {
+
+  success: boolean;
+
+  applications: Application[];
+
+  pagination: {
+
+    total: number;
+
+    page: number;
+
+    limit: number;
+
+    totalPages: number;
+
+  };
 
 }

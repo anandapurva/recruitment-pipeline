@@ -1,5 +1,11 @@
 const db = require("../config/db");
 
+const {
+    advanceApplication,
+    rejectApplication
+} = require("./applicationService");
+
+
 const bulkAdvance = async (
     applicationIds,
     userId
@@ -15,7 +21,7 @@ const bulkAdvance = async (
         try {
 
             const result =
-                await advanceSingleApplication(
+                await advanceApplication(
                     applicationId,
                     userId
                 );
@@ -31,69 +37,13 @@ const bulkAdvance = async (
                 id: applicationId,
                 reason: error.message
             });
+
         }
     }
 
     return results;
 };
 
-const advanceSingleApplication = async (
-    applicationId,
-    userId
-) => {
-
-    const [rows] = await db.query(
-        `SELECT stage
-         FROM applications
-         WHERE id = ?`,
-        [applicationId]
-    );
-
-    if (rows.length === 0) {
-        throw new Error(
-            "Application not found"
-        );
-    }
-
-    const currentStage = rows[0].stage;
-
-    const nextStage = {
-        Applied: "Screening",
-        Screening: "Interview",
-        Interview: "Offer",
-        Offer: "Hired"
-    }[currentStage];
-
-    if (!nextStage) {
-
-        if (currentStage === "Hired") {
-            throw new Error(
-                "Application is already at Hired"
-            );
-        }
-
-        if (currentStage === "Rejected") {
-            throw new Error(
-                "Rejected applications cannot be advanced"
-            );
-        }
-
-        throw new Error(
-            `Application cannot be advanced from ${currentStage}`
-        );
-    }
-
-    moveToStage(
-        applicationId,
-        targetStage,
-        userId
-    );
-
-    return {
-        from: currentStage,
-        to: targetStage
-    };
-};
 
 const bulkReject = async (
     applicationIds,
@@ -131,16 +81,17 @@ const bulkReject = async (
                 );
             }
 
-            await moveApplication(
-                applicationId,
-                "Rejected",
-                userId
-            );
+            const result =
+                await rejectApplication(
+                    applicationId,
+                    userId
+                );
 
             results.succeeded.push({
                 id: applicationId,
                 from: currentStage,
-                to: "Rejected"
+                to: "Rejected",
+                ...result
             });
 
         } catch (error) {
@@ -149,11 +100,13 @@ const bulkReject = async (
                 id: applicationId,
                 reason: error.message
             });
+
         }
     }
 
     return results;
 };
+
 
 const validateApplicationIds = (
     applicationIds
@@ -172,17 +125,19 @@ const validateApplicationIds = (
     }
 
     if (applicationIds.length > 100) {
-    throw new Error(
-        "A maximum of 100 applications can be processed at once"
-    );
-}
+        throw new Error(
+            "A maximum of 100 applications can be processed at once"
+        );
+    }
 
     const uniqueIds =
         [...new Set(applicationIds)];
 
-    if (uniqueIds.some(
-        id => !Number.isInteger(Number(id))
-    )) {
+    if (
+        uniqueIds.some(
+            id => !Number.isInteger(Number(id))
+        )
+    ) {
         throw new Error(
             "Application IDs must be valid numbers"
         );
@@ -190,6 +145,7 @@ const validateApplicationIds = (
 
     return uniqueIds.map(Number);
 };
+
 
 module.exports = {
     bulkAdvance,

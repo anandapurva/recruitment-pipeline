@@ -43,6 +43,11 @@ export class Sidebar {
     },
 
     {
+      label: 'Candidate Search',
+      route: '/recruiter/candidates',
+      icon: 'person_search'
+    },
+    {
       label: 'Applications',
       icon: 'people',
       route: '/recruiter/applications'

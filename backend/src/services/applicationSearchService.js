@@ -160,7 +160,7 @@ const searchApplications = async ({
 
             j.id AS job_id,
             j.title AS job_title,
-            j.department
+            j.department AS job_department
 
         ${fromClause}
 

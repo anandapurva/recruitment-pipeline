@@ -1,0 +1,266 @@
+<div class="search-page">
+
+  <div class="page-header">
+
+    <div>
+
+      <h1>
+        Candidate Search
+      </h1>
+
+      <p>
+        Search and filter candidates across all applications.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="filters">
+
+    <div class="search-box">
+
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Search candidate name or email..."
+        (keyup.enter)="search()"
+      />
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="search()"
+      >
+        Search
+      </button>
+
+    </div>
+
+
+    <div class="filter-row">
+
+      <select
+        [(ngModel)]="selectedJobId"
+        (change)="search()"
+      >
+
+        <option [ngValue]="null">
+          All Jobs
+        </option>
+
+        <option
+          *ngFor="let job of jobs"
+          [ngValue]="job.id"
+        >
+          {{ job.title }}
+        </option>
+
+      </select>
+
+
+      <select
+        [(ngModel)]="selectedStage"
+        (change)="search()"
+      >
+
+        <option value="">
+          All Stages
+        </option>
+
+        <option
+          *ngFor="let stage of stages"
+          [value]="stage"
+        >
+          {{ stage }}
+        </option>
+
+      </select>
+
+
+      <select
+        [(ngModel)]="selectedSource"
+        (change)="search()"
+      >
+
+        <option value="">
+          All Sources
+        </option>
+
+        <option
+          *ngFor="let source of sources"
+          [value]="source"
+        >
+          {{ source }}
+        </option>
+
+      </select>
+
+
+      <select
+        [(ngModel)]="sortBy"
+        (change)="search()"
+      >
+
+        <option value="applied_at">
+          Applied Date
+        </option>
+
+        <option value="stage">
+          Stage
+        </option>
+
+        <option value="updated_at">
+          Last Updated
+        </option>
+
+      </select>
+
+
+      <select
+        [(ngModel)]="sortOrder"
+        (change)="search()"
+      >
+
+        <option value="desc">
+          Descending
+        </option>
+
+        <option value="asc">
+          Ascending
+        </option>
+
+      </select>
+
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    *ngIf="errorMessage"
+    class="error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Searching candidates...
+  </div>
+
+
+  <div
+    *ngIf="!loading"
+    class="results"
+  >
+
+    <div class="results-header">
+
+      <strong>
+        {{ total }} candidate(s) found
+      </strong>
+
+    </div>
+
+
+    <div
+      *ngFor="let application of applications"
+      class="candidate-card"
+    >
+
+      <div>
+
+        <h2>
+          {{ application.candidate_name }}
+        </h2>
+
+        <p>
+          {{ application.candidate_email }}
+        </p>
+
+      </div>
+
+
+      <div class="candidate-details">
+
+        <span>
+          <strong>Job:</strong>
+          {{ application.job_title }}
+        </span>
+
+        <span>
+          <strong>Stage:</strong>
+          {{ application.stage }}
+        </span>
+
+        <span>
+          <strong>Source:</strong>
+          {{ application.source || 'Not specified' }}
+        </span>
+
+        <span>
+          <strong>Applied:</strong>
+          {{ application.applied_at | date:'mediumDate' }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div
+      *ngIf="applications.length === 0"
+      class="empty-state"
+    >
+
+      No candidates found.
+
+    </div>
+
+
+    <div
+      *ngIf="totalPages > 1"
+      class="pagination"
+    >
+
+      <button
+        type="button"
+        (click)="previousPage()"
+        [disabled]="page === 1"
+      >
+        Previous
+      </button>
+
+
+      <span>
+        Page {{ page }} of {{ totalPages }}
+      </span>
+
+
+      <button
+        type="button"
+        (click)="nextPage()"
+        [disabled]="page === totalPages"
+      >
+        Next
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

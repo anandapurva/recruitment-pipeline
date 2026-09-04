@@ -28,8 +28,15 @@ router.get(
 router.get(
     "/applications",
     authenticate,
-    requireRole("recruiter", "interviewer"),
+    requireRole("recruiter"),
     search
+);
+
+router.get(
+    "/applications/export",
+    authenticate,
+    requireRole("recruiter"),
+    exportPipeline
 );
 
 router.get(
@@ -95,13 +102,6 @@ router.post(
     authenticate,
     requireRole("recruiter"),
     bulkController.reject
-);
-
-router.get(
-    "/applications/export",
-    authenticate,
-    requireRole("recruiter"),
-    exportPipeline
 );
 
 module.exports = router;
